@@ -1,0 +1,30 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+dist/
+public/uploads/
+public/download/movie/
+public/downloads/
+
+# Test binary
+*.test
+*.out
+
+# Environment variables
+.env
+
+# IDE / Editor configs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Scraper downloaded media / cache
+storage/
+temp/
+cache/
+*.log

@@ -1,0 +1,156 @@
+{{define "content"}}
+<!-- ==================== FILTER BAR ==================== -->
+<div class="mb-8 bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 rounded-2xl p-5 shadow-sm transition-colors">
+  <div class="flex items-center justify-between mb-4">
+    <div>
+      <h1 class="text-xl font-black text-slate-800 dark:text-white flex items-center gap-2">
+        <i class="fa-solid fa-folder-open text-brand-500"></i> {{.Title}}
+      </h1>
+      <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">Ditemukan {{.TotalCount}} judul film sesuai kriteria</p>
+    </div>
+  </div>
+
+  <form action="/filter" method="GET" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
+    
+    <!-- DROPDOWN 1: TAHUN -->
+    <div>
+      <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">📅 Tahun Rilis</label>
+      <select name="year" class="w-full bg-slate-50 dark:bg-dark-800 border border-slate-200 dark:border-dark-700 text-slate-800 dark:text-slate-100 text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-brand-500 transition">
+        <option value="">Semua Tahun</option>
+        {{range .Years}}
+        <option value="{{.}}" {{if eq $.CurrentYear .}}selected{{end}}>{{.}}</option>
+        {{end}}
+      </select>
+    </div>
+
+    <!-- DROPDOWN 2: GENRE -->
+    <div>
+      <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">🎭 Genre Film</label>
+      <select name="genre" class="w-full bg-slate-50 dark:bg-dark-800 border border-slate-200 dark:border-dark-700 text-slate-800 dark:text-slate-100 text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-brand-500 transition">
+        <option value="">Semua Genre</option>
+        {{range .Genres}}
+        <option value="{{.Slug}}" {{if eq $.CurrentGenre .Slug}}selected{{end}}>{{.Name}}</option>
+        {{end}}
+      </select>
+    </div>
+
+    <!-- DROPDOWN 3: NEGARA -->
+    <div>
+      <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">🌍 Negara Asal</label>
+      <select name="country" class="w-full bg-slate-50 dark:bg-dark-800 border border-slate-200 dark:border-dark-700 text-slate-800 dark:text-slate-100 text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-brand-500 transition">
+        <option value="">Semua Negara</option>
+        {{range .Countries}}
+        <option value="{{.}}" {{if eq $.CurrentCountry .}}selected{{end}}>{{.}}</option>
+        {{end}}
+      </select>
+    </div>
+
+    <!-- DROPDOWN 4: URUTKAN -->
+    <div>
+      <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">⚡ Urutkan Hasil</label>
+      <select name="sort" class="w-full bg-slate-50 dark:bg-dark-800 border border-slate-200 dark:border-dark-700 text-slate-800 dark:text-slate-100 text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-brand-500 transition">
+        <option value="year_desc" {{if eq $.CurrentSort "year_desc"}}selected{{end}}>Rilis Terbaru</option>
+        <option value="rating_desc" {{if eq $.CurrentSort "rating_desc"}}selected{{end}}>Rating Tertinggi ★</option>
+        <option value="views_desc" {{if eq $.CurrentSort "views_desc"}}selected{{end}}>Paling Banyak Ditonton</option>
+        <option value="title_asc" {{if eq $.CurrentSort "title_asc"}}selected{{end}}>Judul (A - Z)</option>
+        <option value="year_asc" {{if eq $.CurrentSort "year_asc"}}selected{{end}}>Film Klasik Terlama</option>
+      </select>
+    </div>
+
+    <!-- TOMBOL SUBMIT & RESET -->
+    <div class="col-span-2 sm:col-span-2 md:col-span-4 lg:col-span-1 flex items-end gap-2">
+      <button type="submit" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs py-2.5 rounded-xl transition flex items-center justify-center gap-1.5 shadow-md">
+        <i class="fa-solid fa-filter"></i> Filter
+      </button>
+      <a href="/" class="bg-slate-100 hover:bg-slate-200 dark:bg-dark-800 dark:hover:bg-dark-700 text-slate-600 dark:text-slate-300 p-2.5 rounded-xl text-xs transition flex items-center justify-center border border-slate-200 dark:border-dark-700" title="Reset Filter">
+        <i class="fa-solid fa-rotate-left"></i>
+      </a>
+    </div>
+  </form>
+</div>
+
+<!-- ==================== MOVIE GRID ==================== -->
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+  {{range .Movies}}
+  <a href="/movie/{{.Slug}}" class="group bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 rounded-xl overflow-hidden hover:border-brand-500 hover:shadow-lg dark:hover:border-brand-500 transition duration-300 flex flex-col shadow-sm">
+    <div class="relative aspect-[2/3] overflow-hidden bg-slate-200 dark:bg-dark-800">
+      {{if .PosterThumbURL}}
+      <img src="{{.PosterThumbURL}}" alt="{{.Title}}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy">
+      {{else if .PosterURL}}
+      <img src="{{.PosterURL}}" alt="{{.Title}}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy">
+      {{else}}
+      <div class="w-full h-full flex items-center justify-center text-slate-400 dark:text-slate-600"><i class="fa-solid fa-film text-4xl"></i></div>
+      {{end}}
+
+      <div class="absolute top-2 left-2 flex flex-col gap-1">
+        {{if .IsFree}}
+        <span class="bg-green-600 text-white text-[10px] font-black px-2 py-0.5 rounded shadow">GRATIS</span>
+        {{end}}
+        {{if .Quality}}
+        <span class="bg-slate-900/90 text-white text-[10px] font-bold px-1.5 py-0.5 rounded border border-slate-700 shadow">{{.Quality}}</span>
+        {{end}}
+      </div>
+
+      <div class="absolute top-2 right-2 bg-black/80 text-yellow-400 text-xs font-bold px-1.5 py-0.5 rounded flex items-center gap-1 shadow">
+        <i class="fa-solid fa-star text-[10px]"></i> {{.Rating}}
+      </div>
+    </div>
+
+    <div class="p-3 flex-1 flex flex-col justify-between">
+      <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 group-hover:text-brand-500 line-clamp-1 transition">{{.Title}}</h3>
+      <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mt-2">
+        <span>{{.Year}}</span>
+        <span class="text-brand-500 font-semibold text-[11px]"><i class="fa-solid fa-play"></i> Watch</span>
+      </div>
+    </div>
+  </a>
+  {{else}}
+  <div class="col-span-full py-16 text-center text-slate-400 dark:text-slate-500 bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 rounded-2xl p-8">
+    <i class="fa-solid fa-box-open text-5xl mb-3 text-slate-300 dark:text-slate-600"></i>
+    <p class="font-medium text-sm">Tidak ada film yang cocok dengan filter yang dipilih.</p>
+  </div>
+  {{end}}
+</div>
+
+<!-- PAGINATION BAR -->
+{{if gt .TotalPages 1}}
+<div class="mt-8 bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+  <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">
+    Menampilkan <span class="font-bold text-slate-900 dark:text-white">{{.TotalCount}}</span> film (Halaman <span class="font-bold text-brand-500">{{.CurrentPage}}</span> dari <span class="font-bold text-slate-900 dark:text-white">{{.TotalPages}}</span>)
+  </span>
+  <div class="flex items-center gap-1.5 flex-wrap justify-center">
+    {{if gt .CurrentPage 1}}
+    <a href="/?p=1&q={{$.SearchQuery}}&genre={{$.CurrentGenre}}&year={{$.CurrentYear}}&country={{$.CurrentCountry}}&license={{$.CurrentLicense}}&sort={{$.CurrentSort}}" class="w-8 h-8 flex items-center justify-center bg-slate-50 dark:bg-dark-800 border border-slate-200 dark:border-dark-700 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-bold hover:bg-brand-500 hover:text-white hover:border-brand-500 transition" title="Halaman Pertama">
+      <i class="fa-solid fa-angles-left"></i>
+    </a>
+    <a href="/?p={{sub .CurrentPage 1}}&q={{$.SearchQuery}}&genre={{$.CurrentGenre}}&year={{$.CurrentYear}}&country={{$.CurrentCountry}}&license={{$.CurrentLicense}}&sort={{$.CurrentSort}}" class="px-3 h-8 flex items-center gap-1 bg-slate-50 dark:bg-dark-800 border border-slate-200 dark:border-dark-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold hover:bg-brand-500 hover:text-white hover:border-brand-500 transition">
+      <i class="fa-solid fa-chevron-left text-[10px]"></i> Prev
+    </a>
+    {{end}}
+
+    {{range (pageItems .CurrentPage .TotalPages)}}
+      {{if .IsDots}}
+      <span class="px-2 h-8 flex items-center justify-center text-xs text-slate-400 dark:text-slate-500 font-black select-none">...</span>
+      {{else if .IsActive}}
+      <span class="w-8 h-8 flex items-center justify-center bg-brand-500 text-white rounded-xl text-xs font-black shadow-md">
+        {{.Number}}
+      </span>
+      {{else}}
+      <a href="/?p={{.Number}}&q={{$.SearchQuery}}&genre={{$.CurrentGenre}}&year={{$.CurrentYear}}&country={{$.CurrentCountry}}&license={{$.CurrentLicense}}&sort={{$.CurrentSort}}" class="w-8 h-8 flex items-center justify-center bg-slate-50 dark:bg-dark-800 border border-slate-200 dark:border-dark-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold hover:bg-brand-500 hover:text-white hover:border-brand-500 transition">
+        {{.Number}}
+      </a>
+      {{end}}
+    {{end}}
+
+    {{if lt .CurrentPage .TotalPages}}
+    <a href="/?p={{add .CurrentPage 1}}&q={{$.SearchQuery}}&genre={{$.CurrentGenre}}&year={{$.CurrentYear}}&country={{$.CurrentCountry}}&license={{$.CurrentLicense}}&sort={{$.CurrentSort}}" class="px-3 h-8 flex items-center gap-1 bg-slate-50 dark:bg-dark-800 border border-slate-200 dark:border-dark-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold hover:bg-brand-500 hover:text-white hover:border-brand-500 transition">
+      Next <i class="fa-solid fa-chevron-right text-[10px]"></i>
+    </a>
+    <a href="/?p={{.TotalPages}}&q={{$.SearchQuery}}&genre={{$.CurrentGenre}}&year={{$.CurrentYear}}&country={{$.CurrentCountry}}&license={{$.CurrentLicense}}&sort={{$.CurrentSort}}" class="w-8 h-8 flex items-center justify-center bg-slate-50 dark:bg-dark-800 border border-slate-200 dark:border-dark-700 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-bold hover:bg-brand-500 hover:text-white hover:border-brand-500 transition" title="Halaman Terakhir ({{.TotalPages}})">
+      <i class="fa-solid fa-angles-right"></i>
+    </a>
+    {{end}}
+  </div>
+</div>
+{{end}}
+{{end}}

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{.Title}}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { 500: '#e50914', 600: '#b81d24', 700: '#8c141a' },
+            dark: { 800: '#1e293b', 850: '#141e2e', 900: '#0f172a', 950: '#090d16' }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-900 min-h-screen flex items-center justify-center p-4 font-sans text-slate-100 antialiased relative overflow-hidden">
+
+  <!-- BACKGROUND GLOW EFFECTS -->
+  <div class="absolute -top-40 -left-40 w-96 h-96 bg-brand-500/20 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
+  <div class="w-full max-w-md bg-dark-900/90 backdrop-blur-xl border border-dark-800 rounded-3xl p-8 shadow-2xl relative z-10">
+    <!-- BRAND -->
+    <div class="text-center mb-8">
+      <div class="w-16 h-16 bg-brand-500/10 text-brand-500 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4 border border-brand-500/20 shadow-lg">
+        <i class="fa-solid fa-clapperboard"></i>
+      </div>
+      <h1 class="text-2xl font-black tracking-wider text-white">CINEMBROT <span class="text-brand-500">CMS</span></h1>
+      <p class="text-xs text-slate-400 mt-1 font-medium">Masuk untuk mengelola konten dan film</p>
+    </div>
+
+    {{if .ErrorMsg}}
+    <div class="mb-6 p-3.5 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl text-xs font-semibold flex items-center gap-2.5">
+      <i class="fa-solid fa-circle-exclamation text-base"></i> {{.ErrorMsg}}
+    </div>
+    {{end}}
+
+    <!-- FORM -->
+    <form action="/admin/login" method="POST" class="space-y-4">
+      <div>
+        <label class="block text-xs font-bold text-slate-300 mb-1.5">Username Admin</label>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500"><i class="fa-solid fa-user"></i></span>
+          <input type="text" name="username" required autofocus placeholder="Masukkan username" 
+            class="w-full bg-dark-950 border border-dark-700 text-white text-sm rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-brand-500 transition">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-300 mb-1.5">Password</label>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500"><i class="fa-solid fa-lock"></i></span>
+          <input type="password" name="password" required placeholder="••••••••" 
+            class="w-full bg-dark-950 border border-dark-700 text-white text-sm rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-brand-500 transition">
+        </div>
+      </div>
+
+      <button type="submit" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 rounded-xl transition duration-200 shadow-lg shadow-brand-500/25 flex items-center justify-center gap-2 mt-6">
+        <i class="fa-solid fa-right-to-bracket"></i> Masuk ke Dashboard
+      </button>
+    </form>
+
+    <div class="mt-8 pt-6 border-t border-dark-800 text-center">
+      <a href="/" class="text-xs text-slate-500 hover:text-slate-300 transition flex items-center justify-center gap-1.5">
+        <i class="fa-solid fa-arrow-left"></i> Kembali ke Website Utama
+      </a>
+    </div>
+  </div>
+
+</body>
+</html>

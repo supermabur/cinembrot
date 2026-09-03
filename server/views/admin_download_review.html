@@ -1,0 +1,410 @@
+{{define "content"}}
+<div class="space-y-6">
+
+  <!-- BREADCRUMB & HEADER -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-dark-900 p-6 rounded-2xl border border-slate-200 dark:border-dark-800 shadow-sm">
+    <div class="space-y-1">
+      <div class="flex items-center gap-2 text-xs font-bold text-slate-400 mb-1">
+        <a href="/admin/downloads" class="hover:text-brand-500 transition">Pengelola Unduhan</a>
+        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+        <span class="text-slate-700 dark:text-slate-200">Review Subtitle & Film</span>
+      </div>
+      <h1 class="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2.5">
+        <i class="fa-solid fa-film text-yellow-500"></i> Review Film: {{.Task.MovieTitle}}
+      </h1>
+      <p class="text-xs text-slate-500 dark:text-slate-400">
+        Putar video di bawah, uji beberapa opsi terjemahan Subtitle Bahasa Indonesia, lalu pilih yang paling pas sebelum di-Hardsub.
+      </p>
+    </div>
+    <div class="flex items-center gap-2">
+      <a href="/admin/downloads" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-dark-800 dark:hover:bg-dark-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition flex items-center gap-2">
+        <i class="fa-solid fa-arrow-left"></i> Kembali ke Unduhan
+      </a>
+    </div>
+  </div>
+
+  <!-- ALERTS -->
+  {{if .SuccessMsg}}
+  <div class="p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold rounded-2xl flex items-center gap-2">
+    <i class="fa-solid fa-circle-check text-base"></i> {{.SuccessMsg}}
+  </div>
+  {{end}}
+  {{if .ErrorMsg}}
+  <div class="p-4 bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-xs font-bold rounded-2xl flex items-center gap-2">
+    <i class="fa-solid fa-triangle-exclamation text-base"></i> {{.ErrorMsg}}
+  </div>
+  {{end}}
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- LEFT: VIDEO PLAYER PREVIEW (2 COLUMNS) -->
+    <div class="lg:col-span-2 space-y-4">
+      <div class="bg-black rounded-2xl overflow-hidden border border-slate-800 shadow-xl relative aspect-video flex items-center justify-center group">
+        <video id="review-video" controls class="w-full h-full object-contain" crossorigin="anonymous">
+          <source src="{{.Task.VideoWebURL}}" type="video/mp4">
+          {{range .Subtitles}}
+          <track id="track-{{.ID}}" kind="subtitles" srclang="id" label="{{.Title}}" src="{{.VTTPath}}" data-subid="{{.ID}}" {{if eq .ID $.Task.SelectedSubtitleID}}default{{end}}>
+          {{end}}
+          Browser Anda tidak mendukung tag video HTML5.
+        </video>
+
+        <!-- ON-SCREEN SUBTITLE OVERLAY (100% PASTI MUNCUL DI LAYAR) -->
+        <div id="sub-overlay-wrapper" class="absolute bottom-12 sm:bottom-16 left-0 right-0 px-6 text-center pointer-events-none z-20 transition-all select-none">
+          <div id="sub-overlay-text" class="inline-block text-yellow-300 font-extrabold text-base sm:text-2xl px-4 py-1.5 rounded-lg bg-black/75 backdrop-blur-xs leading-relaxed max-w-[90%] empty:hidden transition-opacity" style="text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 2px 0 0 #000, -2px 0 0 #000;">
+          </div>
+        </div>
+      </div>
+
+      <!-- PLAYER CONTROLS & TIMING TIPS -->
+      <div class="bg-white dark:bg-dark-900 p-4 rounded-2xl border border-slate-200 dark:border-dark-800 shadow-sm flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div class="flex items-center gap-3">
+          <span class="px-2.5 py-1 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 font-bold rounded-lg border border-yellow-500/20 flex items-center gap-1.5">
+            <i class="fa-solid fa-closed-captioning"></i> Subtitle Aktif: <b id="active-sub-label">{{range .Subtitles}}{{if eq .ID $.Task.SelectedSubtitleID}}{{.Source}}{{end}}{{end}}</b>
+          </span>
+          <span class="text-slate-400">|</span>
+          <span class="text-slate-500">Kualitas: <b>{{.Task.Quality}}</b></span>
+        </div>
+        
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="adjustFontSize(-2)" class="px-2.5 py-1 bg-slate-100 dark:bg-dark-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 rounded-md font-bold text-xs" title="Kecilkan Teks Subtitle">
+            <i class="fa-solid fa-font text-[10px]"></i>-
+          </button>
+          <button type="button" onclick="adjustFontSize(2)" class="px-2.5 py-1 bg-slate-100 dark:bg-dark-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 rounded-md font-bold text-xs" title="Besarkan Teks Subtitle">
+            <i class="fa-solid fa-font text-[14px]"></i>+
+          </button>
+          <button type="button" onclick="toggleOverlay()" id="btn-toggle-overlay" class="px-2.5 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold rounded-md border border-emerald-500/20 hover:bg-emerald-500 hover:text-white transition">
+            <i class="fa-solid fa-eye mr-1"></i> Overlay ON
+          </button>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE SUBTITLE DIALOGUE TIMELINE (CLICK TO JUMP) -->
+      <div class="bg-white dark:bg-dark-900 rounded-2xl border border-slate-200 dark:border-dark-800 shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-slate-100 dark:border-dark-800 flex items-center justify-between">
+          <h3 class="text-xs font-black text-slate-900 dark:text-white flex items-center gap-2">
+            <i class="fa-solid fa-list-ol text-brand-500"></i> Daftar Baris Dialog Subtitle (<span id="cue-count">0</span> Dialog)
+          </h3>
+          <span class="text-[11px] text-slate-400">💡 Klik baris dialog untuk langsung melompat ke adegan tersebut</span>
+        </div>
+        <div id="cues-list" class="max-h-64 overflow-y-auto divide-y divide-slate-100 dark:divide-dark-800 p-2 text-xs space-y-1">
+          <div class="text-center py-6 text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Memuat dialog subtitle...</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: SUBTITLE SELECTION & HARDSUB ACTION (1 COLUMN) -->
+    <div class="space-y-6">
+
+      <!-- SUBTITLE SELECTION CARD -->
+      <div class="bg-white dark:bg-dark-900 p-5 rounded-2xl border border-slate-200 dark:border-dark-800 shadow-sm space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-dark-800">
+          <h3 class="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
+            <i class="fa-solid fa-language text-blue-500"></i> Pilihan Subtitle Indonesia
+          </h3>
+          <span class="text-[11px] font-bold text-blue-500 bg-blue-500/10 px-2 py-0.5 rounded-md">
+            {{len .Subtitles}} Opsi
+          </span>
+        </div>
+
+        <p class="text-xs text-slate-500">
+          Pilih salah satu subtitle di bawah untuk langsung menguji teksnya pada pemutar video:
+        </p>
+
+        <!-- SUBTITLE CANDIDATES LIST -->
+        <div class="space-y-2.5">
+          {{range .Subtitles}}
+          <label class="subtitle-option flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition {{if eq .ID $.Task.SelectedSubtitleID}}border-brand-500 bg-brand-500/5 dark:bg-brand-500/10 shadow-sm{{else}}border-slate-200 dark:border-dark-700 hover:border-slate-300 dark:hover:border-dark-600 bg-slate-50 dark:bg-dark-950{{end}}" onclick="switchSubtitle('{{.ID}}', '{{.VTTPath}}', '{{.Source}}')">
+            <input type="radio" name="subtitle_choice" value="{{.ID}}" {{if eq .ID $.Task.SelectedSubtitleID}}checked{{end}} class="mt-1 text-brand-500 focus:ring-brand-500">
+            <div class="space-y-1">
+              <h4 class="text-xs font-bold text-slate-900 dark:text-white">{{.Title}}</h4>
+              <div class="flex items-center gap-2 text-[11px] text-slate-400">
+                <span class="font-medium"><i class="fa-solid fa-file-lines mr-1"></i> {{.Source}}</span>
+                <span>•</span>
+                <a href="{{.VTTPath}}" target="_blank" class="hover:text-brand-500 underline" onclick="event.stopPropagation()">Lihat File .VTT</a>
+              </div>
+            </div>
+          </label>
+          {{end}}
+        </div>
+
+        <!-- UPLOAD CUSTOM SUBTITLE FORM -->
+        <div class="pt-3 border-t border-slate-100 dark:border-dark-800">
+          <details class="group">
+            <summary class="text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-brand-500 cursor-pointer flex items-center justify-between list-none">
+              <span><i class="fa-solid fa-cloud-arrow-up mr-1.5"></i> Punya file subtitle sendiri? (Upload .SRT)</span>
+              <i class="fa-solid fa-chevron-down text-[10px] group-open:rotate-180 transition"></i>
+            </summary>
+            <form action="/api/admin/downloads/upload-subtitle/{{.Task.ID}}" method="POST" enctype="multipart/form-data" class="mt-3 space-y-2.5">
+              <input type="file" name="subtitle_file" accept=".srt" required class="block w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-brand-500/10 file:text-brand-500 hover:file:bg-brand-500 hover:file:text-white cursor-pointer">
+              <button type="submit" class="w-full py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-lg transition">
+                Upload & Tambahkan ke Pilihan
+              </button>
+            </form>
+          </details>
+        </div>
+
+      </div>
+
+      <!-- HARDSUB TRIGGER CARD -->
+      <div class="bg-gradient-to-br from-amber-500/10 to-brand-500/10 p-5 rounded-2xl border border-amber-500/20 shadow-sm space-y-4">
+        <div class="space-y-1">
+          <h3 class="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
+            <i class="fa-solid fa-fire text-amber-500"></i> Render Hardsub Video
+          </h3>
+          <p class="text-xs text-slate-600 dark:text-slate-400">
+            Subtitle yang Anda pilih di atas akan dibakar secara permanen ke dalam frame video menggunakan FFmpeg.
+          </p>
+        </div>
+
+        <button id="btn-hardsub" onclick="startHardsub('{{.Task.ID}}')" class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-brand-500 hover:from-amber-600 hover:to-brand-600 text-white font-black text-xs rounded-xl transition shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Render Hardsub Sekarang (Burn-in)
+        </button>
+
+        <p class="text-[11px] text-slate-400 text-center">
+          Proses render berjalan di latar belakang (tanpa membebani pemutaran).
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- JAVASCRIPT: DUAL SUBTITLE ENGINE (OVERLAY & NATIVE TRACK) -->
+<script>
+let parsedCues = [];
+let overlayActive = true;
+let currentFontSize = 20;
+
+function parseTimestamp(timeStr) {
+  if (!timeStr) return 0;
+  const parts = timeStr.trim().replace(',', '.').split(':');
+  let seconds = 0;
+  if (parts.length === 3) {
+    seconds = parseFloat(parts[0]) * 3600 + parseFloat(parts[1]) * 60 + parseFloat(parts[2]);
+  } else if (parts.length === 2) {
+    seconds = parseFloat(parts[0]) * 60 + parseFloat(parts[1]);
+  }
+  return seconds;
+}
+
+function parseVTT(vttText) {
+  const cues = [];
+  const lines = vttText.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+  let i = 0;
+  while (i < lines.length) {
+    let line = lines[i].trim();
+    if (line.includes('-->')) {
+      const timeParts = line.split('-->');
+      const start = parseTimestamp(timeParts[0]);
+      const end = parseTimestamp(timeParts[1].split(' ')[0]);
+      let cueText = '';
+      i++;
+      while (i < lines.length && lines[i].trim() !== '') {
+        cueText += (cueText ? '<br>' : '') + lines[i].trim();
+        i++;
+      }
+      if (cueText) {
+        cues.push({ start, end, text: cueText });
+      }
+    } else {
+      i++;
+    }
+  }
+  return cues;
+}
+
+async function loadSubtitleCues(vttPath) {
+  const cueContainer = document.getElementById('cues-list');
+  const countEl = document.getElementById('cue-count');
+  try {
+    const res = await fetch(vttPath);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    parsedCues = parseVTT(text);
+
+    if (countEl) countEl.textContent = parsedCues.length;
+
+    // Render dialogue navigator list
+    if (cueContainer) {
+      if (parsedCues.length === 0) {
+        cueContainer.innerHTML = '<div class="text-center py-4 text-slate-400">Tidak ada baris dialog ditemukan.</div>';
+        return;
+      }
+      cueContainer.innerHTML = parsedCues.map((c, idx) => {
+        const m = Math.floor(c.start / 60);
+        const s = Math.floor(c.start % 60);
+        const timeStr = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        return `
+          <div id="cue-item-${idx}" onclick="jumpToTime(${c.start})" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-dark-800 cursor-pointer flex items-start gap-2.5 transition">
+            <span class="px-2 py-0.5 bg-brand-500/10 text-brand-500 font-mono font-bold rounded text-[10px] shrink-0 mt-0.5">${timeStr}</span>
+            <div class="text-slate-700 dark:text-slate-300 font-medium">${c.text}</div>
+          </div>
+        `;
+      }).join('');
+    }
+  } catch (err) {
+    console.error('Failed to load VTT:', err);
+    parsedCues = [];
+    if (cueContainer) cueContainer.innerHTML = '<div class="text-center py-4 text-red-500">Gagal memuat subtitle: ' + err.message + '</div>';
+  }
+}
+
+function jumpToTime(seconds) {
+  const video = document.getElementById('review-video');
+  if (video) {
+    video.currentTime = seconds;
+    video.play();
+  }
+}
+
+function toggleOverlay() {
+  overlayActive = !overlayActive;
+  const btn = document.getElementById('btn-toggle-overlay');
+  const overlay = document.getElementById('sub-overlay-wrapper');
+  if (overlayActive) {
+    btn.className = "px-2.5 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold rounded-md border border-emerald-500/20 hover:bg-emerald-500 hover:text-white transition";
+    btn.innerHTML = `<i class="fa-solid fa-eye mr-1"></i> Overlay ON`;
+    if (overlay) overlay.style.display = 'block';
+  } else {
+    btn.className = "px-2.5 py-1 bg-slate-500/10 text-slate-500 font-bold rounded-md border border-slate-500/20 hover:bg-slate-500 hover:text-white transition";
+    btn.innerHTML = `<i class="fa-solid fa-eye-slash mr-1"></i> Overlay OFF`;
+    if (overlay) overlay.style.display = 'none';
+  }
+}
+
+function adjustFontSize(delta) {
+  currentFontSize = Math.max(14, Math.min(36, currentFontSize + delta));
+  const overlayText = document.getElementById('sub-overlay-text');
+  if (overlayText) {
+    overlayText.style.fontSize = currentFontSize + 'px';
+  }
+}
+
+async function switchSubtitle(subID, vttPath, sourceName) {
+  // Update Radio styling
+  document.querySelectorAll('.subtitle-option').forEach(el => {
+    el.className = "subtitle-option flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition border-slate-200 dark:border-dark-700 hover:border-slate-300 dark:hover:border-dark-600 bg-slate-50 dark:bg-dark-950";
+  });
+  const currentRadio = document.querySelector(`input[value="${subID}"]`);
+  if (currentRadio) {
+    currentRadio.checked = true;
+    currentRadio.closest('.subtitle-option').className = "subtitle-option flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition border-brand-500 bg-brand-500/5 dark:bg-brand-500/10 shadow-sm";
+  }
+
+  // Update label
+  const labelEl = document.getElementById('active-sub-label');
+  if (labelEl) labelEl.textContent = sourceName;
+
+  // Load new VTT cues into overlay & navigator
+  await loadSubtitleCues(vttPath);
+
+  // Switch native HTML5 track as fallback
+  const video = document.getElementById('review-video');
+  if (video && video.textTracks) {
+    for (let i = 0; i < video.textTracks.length; i++) {
+      const track = video.textTracks[i];
+      const trackSubID = track.id ? track.id.replace('track-', '') : '';
+      if (trackSubID === subID || (track.label && track.label.includes(subID))) {
+        track.mode = 'showing';
+      } else {
+        track.mode = 'disabled';
+      }
+    }
+  }
+
+  // Save selected subtitle in database
+  try {
+    const formData = new FormData();
+    formData.append('subtitle_id', subID);
+    await fetch(`/api/admin/downloads/select-subtitle/{{.Task.ID}}`, {
+      method: 'POST',
+      body: formData
+    });
+  } catch (err) {
+    console.error('Failed to update selected subtitle:', err);
+  }
+}
+
+async function startHardsub(taskID) {
+  if (!confirm('Mulai render Hardsub video dengan subtitle pilihan Anda sekarang?')) {
+    return;
+  }
+
+  const btn = document.getElementById('btn-hardsub');
+  btn.disabled = true;
+  btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Memulai Hardsub...`;
+
+  try {
+    const res = await fetch(`/api/admin/downloads/hardsub/${taskID}`, {
+      method: 'POST'
+    });
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      alert(data.message);
+      window.location.href = '/admin/downloads';
+    } else {
+      alert('Gagal: ' + (data.error || 'Terjadi kesalahan'));
+      btn.disabled = false;
+      btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Render Hardsub Sekarang (Burn-in)`;
+    }
+  } catch (err) {
+    alert('Terjadi kesalahan koneksi: ' + err.message);
+    btn.disabled = false;
+    btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Render Hardsub Sekarang (Burn-in)`;
+  }
+}
+
+// On TimeUpdate Event: Sync Subtitle Overlay with Video Playback
+document.addEventListener('DOMContentLoaded', () => {
+  const video = document.getElementById('review-video');
+  const overlayText = document.getElementById('sub-overlay-text');
+
+  // Load default selected subtitle
+  {{range .Subtitles}}
+  {{if eq .ID $.Task.SelectedSubtitleID}}
+  loadSubtitleCues('{{.VTTPath}}');
+  {{end}}
+  {{end}}
+
+  if (video) {
+    video.addEventListener('timeupdate', () => {
+      if (!overlayActive || parsedCues.length === 0) return;
+      const t = video.currentTime;
+      let activeCue = null;
+      let activeIdx = -1;
+
+      for (let i = 0; i < parsedCues.length; i++) {
+        if (t >= parsedCues[i].start && t <= parsedCues[i].end) {
+          activeCue = parsedCues[i];
+          activeIdx = i;
+          break;
+        }
+      }
+
+      if (activeCue) {
+        if (overlayText.innerHTML !== activeCue.text) {
+          overlayText.innerHTML = activeCue.text;
+        }
+      } else {
+        if (overlayText.innerHTML !== '') {
+          overlayText.innerHTML = '';
+        }
+      }
+
+      // Highlight active cue in dialogue list
+      if (activeIdx !== -1) {
+        document.querySelectorAll('#cues-list > div').forEach(el => el.classList.remove('bg-yellow-500/10', 'border-l-4', 'border-yellow-500'));
+        const activeItem = document.getElementById(`cue-item-${activeIdx}`);
+        if (activeItem) {
+          activeItem.classList.add('bg-yellow-500/10', 'border-l-4', 'border-yellow-500');
+        }
+      }
+    });
+  }
+});
+</script>
+{{end}}

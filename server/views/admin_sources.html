@@ -1,0 +1,329 @@
+{{define "content"}}
+<div class="space-y-6">
+
+  <!-- HEADER -->
+  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div>
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+        <i class="fa-solid fa-globe text-brand-500"></i> Sumber Website Scraping (Database)
+      </h2>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+        Kelola daftar website target scraping, API penyedia metadata, dan link unduhan film yang tersimpan di database MariaDB.
+      </p>
+    </div>
+
+    <!-- BUTTON TAMBAH SUMBER -->
+    <button onclick="document.getElementById('modal-add-source').classList.remove('hidden')" class="bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow flex items-center gap-2 shrink-0">
+      <i class="fa-solid fa-plus"></i> Tambah Sumber Website
+    </button>
+  </div>
+
+  <!-- STATS OVERVIEW -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 p-4 rounded-2xl shadow-sm flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-brand-500/10 text-brand-500 flex items-center justify-center text-xl shrink-0">
+        <i class="fa-solid fa-server"></i>
+      </div>
+      <div>
+        <span class="text-[11px] font-bold text-slate-400 uppercase">Total Sumber Website</span>
+        <h3 class="text-xl font-black text-slate-900 dark:text-white">{{len .Sources}} Target</h3>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 p-4 rounded-2xl shadow-sm flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-xl shrink-0">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <div>
+        <span class="text-[11px] font-bold text-slate-400 uppercase">Sumber Aktif</span>
+        <h3 class="text-xl font-black text-emerald-600 dark:text-emerald-400">Siap Scrape</h3>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 p-4 rounded-2xl shadow-sm flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center text-xl shrink-0">
+        <i class="fa-solid fa-database"></i>
+      </div>
+      <div>
+        <span class="text-[11px] font-bold text-slate-400 uppercase">Penyimpanan</span>
+        <h3 class="text-xl font-black text-blue-600 dark:text-blue-400">Tabel scrape_sources</h3>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOURCES TABLE -->
+  <div class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 rounded-2xl overflow-hidden shadow-sm">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs">
+        <thead class="bg-slate-50 dark:bg-dark-950 text-slate-500 dark:text-slate-400 uppercase font-bold text-[10px] border-b border-slate-200 dark:border-dark-800">
+          <tr>
+            <th class="py-3.5 px-4 w-12 text-center">ID</th>
+            <th class="py-3.5 px-4">Nama Sumber Website</th>
+            <th class="py-3.5 px-4">Kode Unik</th>
+            <th class="py-3.5 px-4">Base URL Website</th>
+            <th class="py-3.5 px-4 text-center">Tipe Integrasi</th>
+            <th class="py-3.5 px-4 text-center">Kategori</th>
+            <th class="py-3.5 px-4 text-center">Status</th>
+            <th class="py-3.5 px-4 text-right">Aksi</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-dark-800">
+          {{range .Sources}}
+          <tr class="hover:bg-slate-50 dark:hover:bg-dark-850 transition">
+            <td class="py-3.5 px-4 text-center font-bold text-slate-400">{{.ID}}</td>
+            <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white">
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-globe text-slate-400"></i>
+                <div>
+                  <span>{{.Name}}</span>
+                  {{if .Description}}<p class="text-[10px] text-slate-400 font-normal mt-0.5 line-clamp-1">{{.Description}}</p>{{end}}
+                </div>
+              </div>
+            </td>
+            <td class="py-3.5 px-4">
+              <code class="bg-slate-100 dark:bg-dark-800 text-brand-500 font-mono px-2 py-1 rounded text-[11px] font-bold">
+                {{.Code}}
+              </code>
+            </td>
+            <td class="py-3.5 px-4 font-mono text-slate-600 dark:text-slate-300 truncate max-w-xs">
+              <a href="{{.BaseURL}}" target="_blank" class="hover:text-brand-500 hover:underline flex items-center gap-1.5">
+                <span class="truncate">{{.BaseURL}}</span>
+                <i class="fa-solid fa-arrow-up-right-from-square text-[9px] shrink-0 text-slate-400"></i>
+              </a>
+            </td>
+            <td class="py-3.5 px-4 text-center">
+              {{if eq .Type "api"}}
+              <span class="bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 font-bold px-2 py-0.5 rounded text-[10px]">
+                ⚡ REST API
+              </span>
+              {{else if eq .Type "html_scrape"}}
+              <span class="bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 font-bold px-2 py-0.5 rounded text-[10px]">
+                🌐 HTML Scraper
+              </span>
+              {{else if eq .Type "rss_feed"}}
+              <span class="bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 font-bold px-2 py-0.5 rounded text-[10px]">
+                📡 RSS Feed
+              </span>
+              {{else}}
+              <span class="bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 font-bold px-2 py-0.5 rounded text-[10px]">
+                📦 {{.Type}}
+              </span>
+              {{end}}
+            </td>
+            <td class="py-3.5 px-4 text-center">
+              <span class="bg-slate-100 dark:bg-dark-800 text-slate-600 dark:text-slate-300 font-semibold px-2 py-0.5 rounded text-[10px]">
+                {{.Category}}
+              </span>
+            </td>
+            <td class="py-3.5 px-4 text-center">
+              <form action="/admin/sources/toggle/{{.ID}}" method="POST" class="inline">
+                <button type="submit" title="Klik untuk mengubah status aktif" class="px-2.5 py-1 rounded-full text-[10px] font-bold transition flex items-center gap-1 mx-auto {{if .IsActive}}bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20{{else}}bg-slate-100 dark:bg-dark-800 text-slate-400 hover:bg-slate-200 dark:hover:bg-dark-700{{end}}">
+                  <span class="w-1.5 h-1.5 rounded-full {{if .IsActive}}bg-emerald-500{{else}}bg-slate-400{{end}}"></span>
+                  {{if .IsActive}}Aktif{{else}}Nonaktif{{end}}
+                </button>
+              </form>
+            </td>
+            <td class="py-3.5 px-4 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <!-- EDIT BUTTON -->
+                <button onclick="openEditSourceModal('{{.ID}}', '{{.Name}}', '{{.BaseURL}}', '{{.Type}}', '{{.Category}}', '{{.APIKey}}', '{{.Description}}', '{{.RateLimitPerSec}}', {{.IsActive}})" class="p-1.5 bg-slate-100 hover:bg-brand-500 hover:text-white dark:bg-dark-800 text-slate-600 dark:text-slate-300 rounded-lg transition" title="Edit Sumber">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                <!-- DELETE BUTTON -->
+                <form action="/admin/sources/delete/{{.ID}}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus sumber website ini dari database?');" class="inline">
+                  <button type="submit" title="Hapus Sumber" class="p-1.5 bg-slate-100 hover:bg-red-500 hover:text-white dark:bg-dark-800 text-slate-600 dark:text-slate-300 rounded-lg transition">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {{else}}
+          <tr>
+            <td colspan="8" class="py-12 text-center text-slate-400">Belum ada sumber website yang terdaftar di database.</td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MODAL: TAMBAH SUMBER WEBSITE BARU -->
+  <div id="modal-add-source" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-scale-up">
+      <div class="px-6 py-4 border-b border-slate-200 dark:border-dark-800 flex items-center justify-between">
+        <h3 class="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+          <i class="fa-solid fa-plus-circle text-brand-500"></i> Tambah Sumber Website Baru
+        </h3>
+        <button onclick="document.getElementById('modal-add-source').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form action="/admin/sources/new" method="POST" class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nama Website Sumber *</label>
+          <input type="text" name="name" placeholder="Contoh: The Movie Database (TMDb)" required
+            class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Kode Unik (Slug) *</label>
+            <input type="text" name="code" placeholder="Contoh: tmdb, archive, custom" required
+              class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500 font-mono">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Tipe Integrasi</label>
+            <select name="type" class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
+              <option value="api">⚡ REST API</option>
+              <option value="html_scrape">🌐 HTML Web Scraping</option>
+              <option value="rss_feed">📡 RSS Feed</option>
+              <option value="json_feed">📦 JSON Feed</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Base URL Website / API Endpoint *</label>
+          <input type="url" name="base_url" placeholder="https://api.themoviedb.org/3 atau https://archive.org" required
+            class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500 font-mono">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Kategori Sumber</label>
+            <input type="text" name="category" placeholder="Contoh: Public Domain, Metadata"
+              class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Rate Limit (Req / Detik)</label>
+            <input type="number" name="rate_limit_per_sec" value="3" min="1" max="20"
+              class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">API Key / Token (Opsional)</label>
+          <input type="text" name="api_key" placeholder="Masukkan API Key jika diperlukan"
+            class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500 font-mono">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Deskripsi & Catatan</label>
+          <textarea name="description" rows="2" placeholder="Catatan singkat tentang website sumber ini..."
+            class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500"></textarea>
+        </div>
+
+        <div class="flex items-center gap-2 pt-2">
+          <input type="checkbox" id="add_is_active" name="is_active" value="1" checked class="rounded text-brand-500 focus:ring-brand-500">
+          <label for="add_is_active" class="text-xs font-bold text-slate-700 dark:text-slate-300">Aktifkan Sumber Ini untuk Scraping</label>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-dark-800">
+          <button type="button" onclick="document.getElementById('modal-add-source').classList.add('hidden')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-dark-800 dark:hover:bg-dark-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition">
+            Batal
+          </button>
+          <button type="submit" class="px-5 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-bold transition shadow">
+            Simpan ke Database
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: EDIT SUMBER WEBSITE -->
+  <div id="modal-edit-source" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-scale-up">
+      <div class="px-6 py-4 border-b border-slate-200 dark:border-dark-800 flex items-center justify-between">
+        <h3 class="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+          <i class="fa-solid fa-pen-to-square text-brand-500"></i> Edit Sumber Website
+        </h3>
+        <button onclick="document.getElementById('modal-edit-source').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="form-edit-source" action="" method="POST" class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nama Website Sumber *</label>
+          <input type="text" id="edit_name" name="name" required
+            class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Tipe Integrasi</label>
+            <select id="edit_type" name="type" class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
+              <option value="api">⚡ REST API</option>
+              <option value="html_scrape">🌐 HTML Web Scraping</option>
+              <option value="rss_feed">📡 RSS Feed</option>
+              <option value="json_feed">📦 JSON Feed</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Kategori</label>
+            <input type="text" id="edit_category" name="category"
+              class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Base URL Website *</label>
+          <input type="url" id="edit_base_url" name="base_url" required
+            class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500 font-mono">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">API Key / Token</label>
+            <input type="text" id="edit_api_key" name="api_key"
+              class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500 font-mono">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Rate Limit (Req / Detik)</label>
+            <input type="number" id="edit_rate_limit" name="rate_limit_per_sec" min="1" max="20"
+              class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Deskripsi & Catatan</label>
+          <textarea id="edit_description" name="description" rows="2"
+            class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-brand-500"></textarea>
+        </div>
+
+        <div class="flex items-center gap-2 pt-2">
+          <input type="checkbox" id="edit_is_active" name="is_active" value="1" class="rounded text-brand-500 focus:ring-brand-500">
+          <label for="edit_is_active" class="text-xs font-bold text-slate-700 dark:text-slate-300">Aktifkan Sumber Ini untuk Scraping</label>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-dark-800">
+          <button type="button" onclick="document.getElementById('modal-edit-source').classList.add('hidden')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-dark-800 dark:hover:bg-dark-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition">
+            Batal
+          </button>
+          <button type="submit" class="px-5 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-bold transition shadow">
+            Simpan Perubahan
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function openEditSourceModal(id, name, baseUrl, type, category, apiKey, description, rateLimit, isActive) {
+    document.getElementById('form-edit-source').action = '/admin/sources/edit/' + id;
+    document.getElementById('edit_name').value = name;
+    document.getElementById('edit_base_url').value = baseUrl;
+    document.getElementById('edit_type').value = type;
+    document.getElementById('edit_category').value = category;
+    document.getElementById('edit_api_key').value = apiKey;
+    document.getElementById('edit_description').value = description;
+    document.getElementById('edit_rate_limit').value = rateLimit || 3;
+    document.getElementById('edit_is_active').checked = isActive;
+    document.getElementById('modal-edit-source').classList.remove('hidden');
+  }
+</script>
+{{end}}

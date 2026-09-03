@@ -1,0 +1,284 @@
+{{define "content"}}
+<div class="space-y-6">
+
+  <!-- QUICK STATUS FILTER PILLS -->
+  <div class="flex items-center gap-2 overflow-x-auto pb-1">
+    <!-- ALL -->
+    <a href="/admin/movies" class="px-3.5 py-2 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-2 {{if eq .CurrentFilter ""}}bg-brand-500 text-white shadow-md shadow-brand-500/20{{else}}bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 text-slate-600 dark:text-slate-300 hover:border-brand-500{{end}}">
+      <i class="fa-solid fa-clapperboard"></i> Semua Film
+      <span class="bg-black/20 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">{{index .FilterStats "all"}}</span>
+    </a>
+
+    <!-- NO DOWNLOAD -->
+    <a href="/admin/movies?filter=no_download" class="px-3.5 py-2 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-2 {{if eq .CurrentFilter "no_download"}}bg-amber-500 text-white shadow-md shadow-amber-500/20{{else}}bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 text-slate-600 dark:text-slate-300 hover:border-amber-500{{end}}">
+      <i class="fa-solid fa-triangle-exclamation text-amber-500 {{if eq .CurrentFilter "no_download"}}text-white{{end}}"></i> Belum Ada Download
+      <span class="bg-black/20 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">{{index .FilterStats "no_download"}}</span>
+    </a>
+
+    <!-- NO SYNOPSIS -->
+    <a href="/admin/movies?filter=no_synopsis" class="px-3.5 py-2 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-2 {{if eq .CurrentFilter "no_synopsis"}}bg-purple-500 text-white shadow-md shadow-purple-500/20{{else}}bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 text-slate-600 dark:text-slate-300 hover:border-purple-500{{end}}">
+      <i class="fa-solid fa-align-left text-purple-500 {{if eq .CurrentFilter "no_synopsis"}}text-white{{end}}"></i> Belum Ada Sinopsis
+      <span class="bg-black/20 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">{{index .FilterStats "no_synopsis"}}</span>
+    </a>
+
+    <!-- NO STREAM -->
+    <a href="/admin/movies?filter=no_stream" class="px-3.5 py-2 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-2 {{if eq .CurrentFilter "no_stream"}}bg-blue-500 text-white shadow-md shadow-blue-500/20{{else}}bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 text-slate-600 dark:text-slate-300 hover:border-blue-500{{end}}">
+      <i class="fa-solid fa-play text-blue-500 {{if eq .CurrentFilter "no_stream"}}text-white{{end}}"></i> Belum Ada Player
+      <span class="bg-black/20 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">{{index .FilterStats "no_stream"}}</span>
+    </a>
+
+    <!-- MANUAL EDIT (CMS LOCKED) -->
+    <a href="/admin/movies?filter=manual_edit" class="px-3.5 py-2 rounded-xl text-xs font-bold transition shrink-0 flex items-center gap-2 {{if eq .CurrentFilter "manual_edit"}}bg-emerald-500 text-white shadow-md shadow-emerald-500/20{{else}}bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 text-slate-600 dark:text-slate-300 hover:border-emerald-500{{end}}">
+      <i class="fa-solid fa-lock text-emerald-500 {{if eq .CurrentFilter "manual_edit"}}text-white{{end}}"></i> Diedit Manual (CMS)
+      <span class="bg-black/20 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">{{index .FilterStats "manual_edit"}}</span>
+    </a>
+  </div>
+
+  <!-- ADVANCED SEARCH & DROPDOWN FILTER BAR -->
+  <form action="/admin/movies" method="GET" class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 p-4 rounded-2xl shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
+    <div class="flex-1 w-full flex flex-col sm:flex-row items-center gap-3">
+      <!-- SEARCH INPUT -->
+      <div class="relative w-full sm:w-64">
+        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fa-solid fa-magnifying-glass text-xs"></i></span>
+        <input type="text" name="q" value="{{.SearchQuery}}" placeholder="Cari judul film..." 
+          class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl pl-8 pr-4 py-2 focus:outline-none focus:border-brand-500">
+      </div>
+
+      <!-- FILTER KONDISI STATUS -->
+      <select name="filter" onchange="this.form.submit()" class="w-full sm:w-auto bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 text-slate-800 dark:text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-brand-500 font-medium">
+        <option value="">Semua Kondisi Data</option>
+        <option value="no_download" {{if eq .CurrentFilter "no_download"}}selected{{end}}>⚠️ Belum Ada Link Download</option>
+        <option value="has_download" {{if eq .CurrentFilter "has_download"}}selected{{end}}>✅ Sudah Ada Link Download</option>
+        <option value="no_synopsis" {{if eq .CurrentFilter "no_synopsis"}}selected{{end}}>📝 Belum Ada Sinopsis</option>
+        <option value="has_synopsis" {{if eq .CurrentFilter "has_synopsis"}}selected{{end}}>📖 Sudah Ada Sinopsis</option>
+        <option value="no_stream" {{if eq .CurrentFilter "no_stream"}}selected{{end}}>📺 Belum Ada Player Stream</option>
+        <option value="manual_edit" {{if eq .CurrentFilter "manual_edit"}}selected{{end}}>🔒 Diedit Manual (CMS)</option>
+        <option value="auto_scrape" {{if eq .CurrentFilter "auto_scrape"}}selected{{end}}>🤖 Hasil Auto-Scraping</option>
+      </select>
+
+      <!-- FILTER TAHUN -->
+      <select name="year" onchange="this.form.submit()" class="w-full sm:w-auto bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 text-slate-800 dark:text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-brand-500 font-medium">
+        <option value="">Semua Tahun</option>
+        {{range .Years}}
+        <option value="{{.}}" {{if eq $.CurrentYear .}}selected{{end}}>Tahun {{.}}</option>
+        {{end}}
+      </select>
+
+      <!-- FILTER LISENSI -->
+      <select name="license" onchange="this.form.submit()" class="w-full sm:w-auto bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 text-slate-800 dark:text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-brand-500 font-medium">
+        <option value="">Semua Lisensi</option>
+        <option value="free" {{if eq .CurrentLicense "free"}}selected{{end}}>100% Gratis & Legal</option>
+        <option value="commercial" {{if eq .CurrentLicense "commercial"}}selected{{end}}>Berlisensi Komersil</option>
+      </select>
+
+      <!-- FILTER SUMBER SCRAPING -->
+      <select name="source" onchange="this.form.submit()" class="w-full sm:w-auto bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 text-slate-800 dark:text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-brand-500 font-medium">
+        <option value="">Semua Sumber</option>
+        <option value="yts" {{if eq .CurrentSource "yts"}}selected{{end}}>⚡ YTS Movies (Torrents)</option>
+        <option value="tmdb" {{if eq .CurrentSource "tmdb"}}selected{{end}}>🎬 TMDb Discover (Metadata)</option>
+        <option value="archive" {{if eq .CurrentSource "archive"}}selected{{end}}>🏛️ Internet Archive</option>
+        <option value="blender" {{if eq .CurrentSource "blender"}}selected{{end}}>🎨 Blender Studio</option>
+        <option value="publicdomain" {{if eq .CurrentSource "publicdomain"}}selected{{end}}>📚 Public Domain Hub</option>
+        <option value="manual" {{if eq .CurrentSource "manual"}}selected{{end}}>✍️ Input Manual (CMS)</option>
+      </select>
+    </div>
+
+    <!-- ADD NEW BUTTON -->
+    <a href="/admin/movies/new" class="w-full sm:w-auto bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow flex items-center justify-center gap-2 shrink-0">
+      <i class="fa-solid fa-plus"></i> Tambah Film Baru
+    </a>
+  </form>
+
+  <!-- MOVIES TABLE -->
+  <div class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 rounded-2xl overflow-hidden shadow-sm">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs">
+        <thead class="bg-slate-50 dark:bg-dark-950 text-slate-500 dark:text-slate-400 uppercase font-bold text-[10px] border-b border-slate-200 dark:border-dark-800">
+          <tr>
+            <th class="py-3.5 px-4 w-12 text-center">ID</th>
+            <th class="py-3.5 px-4">Poster & Judul Film</th>
+            <th class="py-3.5 px-4 text-center">Tahun</th>
+            <th class="py-3.5 px-4 text-center">Rating</th>
+            <th class="py-3.5 px-4 text-center">Sinopsis</th>
+            <th class="py-3.5 px-4 text-center">Download</th>
+            <th class="py-3.5 px-4 text-center">Stream</th>
+            <th class="py-3.5 px-4 text-center">Asal Sumber Scraping</th>
+            <th class="py-3.5 px-4 text-center">Kunci Edit</th>
+            <th class="py-3.5 px-4 text-right">Aksi</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-dark-800">
+          {{range .Movies}}
+          <tr class="hover:bg-slate-50 dark:hover:bg-dark-850 transition">
+            <td class="py-3 px-4 text-center font-bold text-slate-400">{{.ID}}</td>
+            <td class="py-3 px-4">
+              <div class="flex items-center gap-3">
+                <img src="{{if .PosterThumbURL}}{{.PosterThumbURL}}{{else}}{{.PosterURL}}{{end}}" class="w-9 h-12 object-cover rounded-lg bg-slate-200 dark:bg-dark-800 shrink-0">
+                <div class="overflow-hidden max-w-xs">
+                  <a href="/movie/{{.Slug}}" target="_blank" class="font-bold text-slate-900 dark:text-white hover:text-brand-500 transition truncate block">
+                    {{.Title}}
+                  </a>
+                  <p class="text-[10px] text-slate-400 truncate">{{if .OriginalTitle}}{{.OriginalTitle}}{{else}}{{.Country}}{{end}}</p>
+                </div>
+              </div>
+            </td>
+            <td class="py-3 px-4 text-center font-bold text-slate-700 dark:text-slate-300">{{.Year}}</td>
+            <td class="py-3 px-4 text-center">
+              <span class="bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold px-2 py-0.5 rounded text-[11px]">
+                ★ {{.Rating}}
+              </span>
+            </td>
+            <!-- STATUS SINOPSIS -->
+            <td class="py-3 px-4 text-center">
+              {{if .Synopsis}}
+              <span class="text-emerald-500 font-bold text-[11px]" title="Sinopsis Lengkap"><i class="fa-solid fa-circle-check"></i> Ada</span>
+              {{else}}
+              <span class="bg-purple-500/10 text-purple-600 dark:text-purple-400 font-bold px-2 py-0.5 rounded text-[10px]">
+                ⚠️ Kosong
+              </span>
+              {{end}}
+            </td>
+            <!-- STATUS DOWNLOAD -->
+            <td class="py-3 px-4 text-center font-bold">
+              {{if .DownloadLinks}}
+              <span class="bg-blue-500/10 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded font-bold text-[10px]">
+                {{len .DownloadLinks}} File
+              </span>
+              {{else}}
+              <span class="bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded font-bold text-[10px]">
+                ⚠️ Belum Ada
+              </span>
+              {{end}}
+            </td>
+            <!-- STATUS STREAM -->
+            <td class="py-3 px-4 text-center font-bold">
+              {{if .StreamLinks}}
+              <span class="bg-purple-500/10 text-purple-600 dark:text-purple-400 px-2 py-0.5 rounded font-bold text-[10px]">
+                {{len .StreamLinks}} Server
+              </span>
+              {{else}}
+              <span class="text-slate-400 text-[10px]">-</span>
+              {{end}}
+            </td>
+            <!-- ASAL SUMBER SCRAPING -->
+            <td class="py-3 px-4 text-center">
+              {{if or (eq .SourceWebsite "yts.mx") (eq .SourceWebsite "yts.lt") (eq .SourceWebsite "yts.bz") (eq .SourceWebsite "yts.ag") (eq .SourceWebsite "yts")}}
+                <a href="{{if .SourceURL}}{{.SourceURL}}{{else}}https://yts.lt{{end}}" target="_blank" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500 hover:text-white transition" title="Scraped dari YTS (YIFY Torrents)">
+                  <i class="fa-solid fa-magnet"></i> YTS (YIFY)
+                </a>
+              {{else if or (eq .SourceWebsite "themoviedb.org") (eq .SourceWebsite "tmdb")}}
+                <a href="{{if .SourceURL}}{{.SourceURL}}{{else}}https://www.themoviedb.org{{end}}" target="_blank" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20 hover:bg-cyan-500 hover:text-white transition" title="Scraped dari The Movie Database">
+                  <i class="fa-solid fa-film"></i> TMDb API
+                </a>
+              {{else if or (eq .SourceWebsite "archive.org") (eq .SourceWebsite "Internet Archive")}}
+                <a href="{{if .SourceURL}}{{.SourceURL}}{{else}}https://archive.org{{end}}" target="_blank" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 hover:bg-amber-500 hover:text-white transition" title="Scraped dari Internet Archive">
+                  <i class="fa-solid fa-landmark"></i> Internet Archive
+                </a>
+              {{else if eq .SourceWebsite "studio.blender.org"}}
+                <a href="{{if .SourceURL}}{{.SourceURL}}{{else}}https://studio.blender.org/films/{{end}}" target="_blank" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 hover:bg-orange-500 hover:text-white transition" title="Scraped dari Blender Open Projects">
+                  <i class="fa-solid fa-cube"></i> Blender Studio
+                </a>
+              {{else if eq .SourceWebsite "publicdomainmovies.info"}}
+                <a href="{{if .SourceURL}}{{.SourceURL}}{{else}}https://publicdomainmovies.info/{{end}}" target="_blank" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 hover:bg-indigo-500 hover:text-white transition" title="Scraped dari Public Domain Movies Hub">
+                  <i class="fa-solid fa-book-open"></i> Public Domain
+                </a>
+              {{else if .SourceWebsite}}
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-100 dark:bg-dark-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-dark-700">
+                  <i class="fa-solid fa-globe"></i> {{.SourceWebsite}}
+                </span>
+              {{else}}
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-100 dark:bg-dark-800 text-slate-400">
+                  <i class="fa-solid fa-pen-nib"></i> Manual (CMS)
+                </span>
+              {{end}}
+            </td>
+            <!-- STATUS KUNCI EDIT -->
+            <td class="py-3 px-4 text-center">
+              {{if .IsManualEdit}}
+              <span class="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-bold px-2 py-0.5 rounded text-[10px] flex items-center justify-center gap-1" title="Terkunci dari overwrite scraper">
+                <i class="fa-solid fa-lock text-[9px]"></i> Manual
+              </span>
+              {{else}}
+              <span class="bg-slate-100 dark:bg-dark-800 text-slate-400 font-medium px-2 py-0.5 rounded text-[10px]" title="Dapat diperbarui oleh scraper">
+                Auto
+              </span>
+              {{end}}
+            </td>
+            <td class="py-3 px-4 text-right">
+              <div class="flex items-center justify-end gap-2">
+                <a href="/admin/movies/edit/{{.ID}}" title="Edit Film" class="p-1.5 bg-slate-100 hover:bg-brand-500 hover:text-white dark:bg-dark-800 text-slate-600 dark:text-slate-300 rounded-lg transition font-bold text-xs">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </a>
+                <form action="/admin/movies/delete/{{.ID}}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus film ini?');" class="inline">
+                  <button type="submit" title="Hapus Film" class="p-1.5 bg-slate-100 hover:bg-red-500 hover:text-white dark:bg-dark-800 text-slate-600 dark:text-slate-300 rounded-lg transition font-bold text-xs">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {{else}}
+          <tr>
+            <td colspan="10" class="py-12 text-center text-slate-400">Tidak ada film yang sesuai kriteria filter.</td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- PAGINATION BAR -->
+    {{if gt .TotalPages 1}}
+    <div class="p-4 bg-slate-50 dark:bg-dark-950 border-t border-slate-200 dark:border-dark-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">
+        Menampilkan total <span class="font-bold text-slate-900 dark:text-white">{{.TotalCount}}</span> film (Halaman <span class="font-bold text-brand-500">{{.CurrentPage}}</span> dari <span class="font-bold text-slate-900 dark:text-white">{{.TotalPages}}</span>)
+      </span>
+      <div class="flex items-center gap-1.5 flex-wrap justify-center">
+        <!-- FIRST & PREV BUTTONS -->
+        {{if gt .CurrentPage 1}}
+        <a href="/admin/movies?p=1&q={{$.SearchQuery}}&filter={{$.CurrentFilter}}&year={{$.CurrentYear}}&license={{$.CurrentLicense}}&source={{$.CurrentSource}}" class="w-8 h-8 flex items-center justify-center bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-bold hover:bg-brand-500 hover:text-white hover:border-brand-500 transition shadow-sm" title="Halaman Pertama (1)">
+          <i class="fa-solid fa-angles-left"></i>
+        </a>
+        <a href="/admin/movies?p={{sub .CurrentPage 1}}&q={{$.SearchQuery}}&filter={{$.CurrentFilter}}&year={{$.CurrentYear}}&license={{$.CurrentLicense}}&source={{$.CurrentSource}}" class="px-3 h-8 flex items-center gap-1 bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold hover:bg-brand-500 hover:text-white hover:border-brand-500 transition shadow-sm">
+          <i class="fa-solid fa-chevron-left text-[10px]"></i> Prev
+        </a>
+        {{else}}
+        <span class="px-3 h-8 flex items-center gap-1 bg-slate-100 dark:bg-dark-800/50 border border-slate-200 dark:border-dark-800 text-slate-300 dark:text-slate-600 rounded-xl text-xs font-bold cursor-not-allowed">
+          <i class="fa-solid fa-chevron-left text-[10px]"></i> Prev
+        </span>
+        {{end}}
+
+        <!-- NUMBERED BUTTONS -->
+        {{range (pageItems .CurrentPage .TotalPages)}}
+          {{if .IsDots}}
+          <span class="px-2 h-8 flex items-center justify-center text-xs text-slate-400 dark:text-slate-500 font-black select-none">...</span>
+          {{else if .IsActive}}
+          <span class="w-8 h-8 flex items-center justify-center bg-brand-500 text-white rounded-xl text-xs font-black shadow-md border border-brand-600">
+            {{.Number}}
+          </span>
+          {{else}}
+          <a href="/admin/movies?p={{.Number}}&q={{$.SearchQuery}}&filter={{$.CurrentFilter}}&year={{$.CurrentYear}}&license={{$.CurrentLicense}}&source={{$.CurrentSource}}" class="w-8 h-8 flex items-center justify-center bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold hover:bg-brand-500 hover:text-white hover:border-brand-500 transition shadow-sm">
+            {{.Number}}
+          </a>
+          {{end}}
+        {{end}}
+
+        <!-- NEXT & LAST BUTTONS -->
+        {{if lt .CurrentPage .TotalPages}}
+        <a href="/admin/movies?p={{add .CurrentPage 1}}&q={{$.SearchQuery}}&filter={{$.CurrentFilter}}&year={{$.CurrentYear}}&license={{$.CurrentLicense}}&source={{$.CurrentSource}}" class="px-3 h-8 flex items-center gap-1 bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold hover:bg-brand-500 hover:text-white hover:border-brand-500 transition shadow-sm">
+          Next <i class="fa-solid fa-chevron-right text-[10px]"></i>
+        </a>
+        <a href="/admin/movies?p={{.TotalPages}}&q={{$.SearchQuery}}&filter={{$.CurrentFilter}}&year={{$.CurrentYear}}&license={{$.CurrentLicense}}&source={{$.CurrentSource}}" class="w-8 h-8 flex items-center justify-center bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-bold hover:bg-brand-500 hover:text-white hover:border-brand-500 transition shadow-sm" title="Halaman Terakhir ({{.TotalPages}})">
+          <i class="fa-solid fa-angles-right"></i>
+        </a>
+        {{else}}
+        <span class="px-3 h-8 flex items-center gap-1 bg-slate-100 dark:bg-dark-800/50 border border-slate-200 dark:border-dark-800 text-slate-300 dark:text-slate-600 rounded-xl text-xs font-bold cursor-not-allowed">
+          Next <i class="fa-solid fa-chevron-right text-[10px]"></i>
+        </span>
+        {{end}}
+      </div>
+    </div>
+    {{end}}
+  </div>
+
+</div>
+{{end}}

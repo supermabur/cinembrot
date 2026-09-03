@@ -1,0 +1,117 @@
+{{define "content"}}
+<div class="space-y-8">
+
+  <!-- HEADER -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-base font-bold text-slate-900 dark:text-white">Kelola Pengguna CMS</h2>
+      <p class="text-xs text-slate-400">Tambah akun admin atau editor lain untuk mengelola konten web</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- FORM TAMBAH PENGGUNA BARU -->
+    <div class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 rounded-2xl p-6 shadow-sm h-fit">
+      <h3 class="text-sm font-bold text-slate-900 dark:text-white pb-3 border-b border-slate-100 dark:border-dark-800 mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-user-plus text-brand-500"></i> Tambah Pengguna Baru
+      </h3>
+
+      <form action="/admin/users/new" method="POST" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Username *</label>
+          <input type="text" name="username" required placeholder="Username unik (tanpa spasi)" 
+            class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-brand-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nama Lengkap</label>
+          <input type="text" name="full_name" placeholder="Nama Lengkap Pengguna" 
+            class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-brand-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Password *</label>
+          <input type="password" name="password" required placeholder="Minimal 6 karakter" 
+            class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-brand-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Peran / Role</label>
+          <select name="role" class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-brand-500">
+            <option value="admin">Administrator (Akses Penuh)</option>
+            <option value="editor" selected>Editor (Kelola Film)</option>
+          </select>
+        </div>
+
+        <button type="submit" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs py-3 rounded-xl transition shadow flex items-center justify-center gap-2 mt-2">
+          <i class="fa-solid fa-plus"></i> Buat Pengguna
+        </button>
+      </form>
+    </div>
+
+    <!-- TABEL DAFTAR PENGGUNA -->
+    <div class="lg:col-span-2 bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 rounded-2xl p-6 shadow-sm">
+      <h3 class="text-sm font-bold text-slate-900 dark:text-white pb-3 border-b border-slate-100 dark:border-dark-800 mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-users text-blue-500"></i> Daftar Pengguna CMS
+      </h3>
+
+      <div class="divide-y divide-slate-100 dark:divide-dark-800">
+        {{range .Users}}
+        <div class="py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-dark-800 text-slate-700 dark:text-slate-200 flex items-center justify-center font-black text-sm border border-slate-200 dark:border-dark-700">
+              {{slice .Username 0 1}}
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h4 class="text-xs font-bold text-slate-900 dark:text-white">{{.Username}}</h4>
+                <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded {{if eq .Role "admin"}}bg-brand-500/10 text-brand-500 border border-brand-500/20{{else}}bg-blue-500/10 text-blue-500 border border-blue-500/20{{end}}">
+                  {{.Role}}
+                </span>
+              </div>
+              <p class="text-xs text-slate-500 dark:text-slate-400">{{if .FullName}}{{.FullName}}{{else}}-{{end}}</p>
+              <span class="text-[10px] text-slate-400">Dibuat: {{.CreatedAt.Format "02 Jan 2006"}}</span>
+            </div>
+          </div>
+
+          <!-- EDIT / DELETE -->
+          <div class="flex items-center gap-2 self-end sm:self-center">
+            <!-- EDIT MODAL TRIGGER -->
+            <button onclick="document.getElementById('edit-user-{{.ID}}').classList.toggle('hidden')" class="p-2 bg-slate-100 hover:bg-slate-200 dark:bg-dark-800 dark:hover:bg-dark-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg transition" title="Edit Pengguna">
+              <i class="fa-solid fa-user-pen"></i>
+            </button>
+
+            <!-- DELETE FORM -->
+            <form action="/admin/users/delete/{{.ID}}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengguna ini?');" class="inline">
+              <button type="submit" class="p-2 bg-red-500/10 hover:bg-red-500 hover:text-white text-red-500 text-xs font-bold rounded-lg transition" title="Hapus Pengguna">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- HIDDEN INLINE EDIT FORM -->
+        <div id="edit-user-{{.ID}}" class="hidden p-4 bg-slate-50 dark:bg-dark-950 rounded-xl mb-4 border border-slate-200 dark:border-dark-800">
+          <h4 class="text-xs font-bold text-slate-800 dark:text-white mb-3 flex items-center gap-1.5">
+            <i class="fa-solid fa-pen text-brand-500"></i> Edit Pengguna: {{.Username}}
+          </h4>
+          <form action="/admin/users/edit/{{.ID}}" method="POST" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <input type="text" name="full_name" value="{{.FullName}}" placeholder="Nama Lengkap" class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-3 py-2 text-slate-900 dark:text-slate-100">
+            <select name="role" class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-3 py-2 text-slate-900 dark:text-slate-100">
+              <option value="admin" {{if eq .Role "admin"}}selected{{end}}>Administrator</option>
+              <option value="editor" {{if eq .Role "editor"}}selected{{end}}>Editor</option>
+            </select>
+            <input type="password" name="password" placeholder="Password Baru (Kosongkan jika tdk ganti)" class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-3 py-2 text-slate-900 dark:text-slate-100">
+            <div class="sm:col-span-3 flex justify-end gap-2 mt-1">
+              <button type="button" onclick="document.getElementById('edit-user-{{.ID}}').classList.add('hidden')" class="px-3 py-1.5 bg-slate-200 dark:bg-dark-800 text-xs font-bold rounded-lg">Batal</button>
+              <button type="submit" class="px-4 py-1.5 bg-brand-500 text-white text-xs font-bold rounded-lg shadow">Simpan</button>
+            </div>
+          </form>
+        </div>
+        {{end}}
+      </div>
+    </div>
+  </div>
+
+</div>
+{{end}}

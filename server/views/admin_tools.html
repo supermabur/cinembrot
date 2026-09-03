@@ -1,0 +1,235 @@
+{{define "content"}}
+<div class="space-y-8">
+
+  <!-- HEADER -->
+  <div>
+    <h2 class="text-base font-bold text-slate-900 dark:text-white">Alat CMS & Eksekutor Scraper</h2>
+    <p class="text-xs text-slate-400">Atur jadwal scraping berkala otomatis, eksekusi scraping manual tahun tertentu, atau validasi kesehatan link download langsung dari panel admin</p>
+  </div>
+
+  <!-- ==================== 1. PENGATURAN JADWAL AUTO-SCRAPER (ON / OFF) ==================== -->
+  <div class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 rounded-2xl p-6 shadow-sm space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-dark-800">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-brand-500/10 text-brand-500 flex items-center justify-center text-lg"><i class="fa-solid fa-clock-rotate-left"></i></div>
+        <div>
+          <h3 class="text-sm font-bold text-slate-900 dark:text-white">Pengaturan Jadwal Auto-Scraper Latar Belakang</h3>
+          <p class="text-xs text-slate-400">Kontrol otomatisasi cron worker untuk menyegarkan katalog film berkala tanpa intervensi manual</p>
+        </div>
+      </div>
+      <div>
+        {{if .SchedulerConfig.Enabled}}
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          JADWAL AKTIF (ON)
+        </span>
+        {{else}}
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-red-500/10 text-red-500 border border-red-500/20">
+          <span class="w-2 h-2 rounded-full bg-red-500"></span>
+          JADWAL NONAKTIF (OFF)
+        </span>
+        {{end}}
+      </div>
+    </div>
+
+    <form action="/admin/tools/scheduler-settings" method="POST" class="space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- SAKLAR ON / OFF -->
+        <div class="p-4 bg-slate-50 dark:bg-dark-950 rounded-2xl border border-slate-200 dark:border-dark-800 flex flex-col justify-between">
+          <div>
+            <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Saklar Utama Jadwal</label>
+            <p class="text-[11px] text-slate-400 mb-3">Aktifkan atau jeda proses background auto-scraper</p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer select-none">
+            <input type="checkbox" name="enabled" class="sr-only peer" {{if .SchedulerConfig.Enabled}}checked{{end}}>
+            <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-dark-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+            <span class="ml-3 text-xs font-bold text-slate-700 dark:text-slate-300 peer-checked:text-emerald-600 dark:peer-checked:text-emerald-400">
+              {{if .SchedulerConfig.Enabled}}Aktif (ON){{else}}Mati (OFF){{end}}
+            </span>
+          </label>
+        </div>
+
+        <!-- INTERVAL WAKTU -->
+        <div class="p-4 bg-slate-50 dark:bg-dark-950 rounded-2xl border border-slate-200 dark:border-dark-800">
+          <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Interval Siklus Scraping</label>
+          <p class="text-[11px] text-slate-400 mb-2">Frekuensi eksekusi penelusuran film baru</p>
+          <select name="interval_minutes" class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-brand-500 font-medium">
+            <option value="5" {{if eq .SchedulerConfig.IntervalMinutes 5}}selected{{end}}>⚡ Setiap 5 Menit (Cepat / Test)</option>
+            <option value="15" {{if eq .SchedulerConfig.IntervalMinutes 15}}selected{{end}}>⏱️ Setiap 15 Menit</option>
+            <option value="30" {{if eq .SchedulerConfig.IntervalMinutes 30}}selected{{end}}>⏱️ Setiap 30 Menit (Standar)</option>
+            <option value="60" {{if eq .SchedulerConfig.IntervalMinutes 60}}selected{{end}}>🕒 Setiap 1 Jam (60 Menit)</option>
+            <option value="180" {{if eq .SchedulerConfig.IntervalMinutes 180}}selected{{end}}>🕒 Setiap 3 Jam (180 Menit)</option>
+            <option value="360" {{if eq .SchedulerConfig.IntervalMinutes 360}}selected{{end}}>🕒 Setiap 6 Jam (360 Menit)</option>
+            <option value="720" {{if eq .SchedulerConfig.IntervalMinutes 720}}selected{{end}}>🕒 Setiap 12 Jam (720 Menit)</option>
+            <option value="1440" {{if eq .SchedulerConfig.IntervalMinutes 1440}}selected{{end}}>📅 Setiap 24 Jam (1x Sehari / Harian)</option>
+          </select>
+        </div>
+
+        <!-- RENTANG TAHUN -->
+        <div class="p-4 bg-slate-50 dark:bg-dark-950 rounded-2xl border border-slate-200 dark:border-dark-800">
+          <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Rentang Tahun Film</label>
+          <p class="text-[11px] text-slate-400 mb-2">Tahun yang dipindai saat siklus</p>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <span class="text-[10px] text-slate-400 block mb-0.5">Dari:</span>
+              <input type="number" name="start_year" value="{{.SchedulerConfig.StartYear}}" class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-brand-500 font-medium">
+            </div>
+            <div>
+              <span class="text-[10px] text-slate-400 block mb-0.5">Sampai:</span>
+              <input type="number" name="end_year" value="{{.SchedulerConfig.EndYear}}" class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-brand-500 font-medium">
+            </div>
+          </div>
+        </div>
+
+        <!-- HALAMAN & JEDA -->
+        <div class="p-4 bg-slate-50 dark:bg-dark-950 rounded-2xl border border-slate-200 dark:border-dark-800">
+          <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Halaman & Delay</label>
+          <p class="text-[11px] text-slate-400 mb-2">Beban per siklus</p>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <span class="text-[10px] text-slate-400 block mb-0.5">Hal/Tahun:</span>
+              <input type="number" name="pages_per_year" value="{{.SchedulerConfig.PagesPerYear}}" min="1" max="5" class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-brand-500 font-medium">
+            </div>
+            <div>
+              <span class="text-[10px] text-slate-400 block mb-0.5">Delay (ms):</span>
+              <input type="number" name="delay_ms" value="{{.SchedulerConfig.DelayMs}}" step="100" min="100" class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-brand-500 font-medium">
+            </div>
+          </div>
+        </div>
+
+        <!-- DIREKTORI PENYIMPANAN UNDUHAN FILM -->
+        <div class="p-4 bg-slate-50 dark:bg-dark-950 rounded-2xl border border-slate-200 dark:border-dark-800 md:col-span-2 lg:col-span-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+            <div>
+              <label class="block text-xs font-bold text-slate-800 dark:text-slate-200">
+                <i class="fa-solid fa-folder-open text-emerald-500 mr-1"></i> Direktori Penyimpanan Unduhan Film (Download Movie Path)
+              </label>
+              <p class="text-[11px] text-slate-400">Lokasi direktori penyimpanan file unduhan torrent film dan hasil render hardsub permanen</p>
+            </div>
+            <span class="text-[10px] font-mono bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-1 rounded-lg border border-emerald-500/20 whitespace-nowrap self-start sm:self-auto">
+              Default: public/download/movie
+            </span>
+          </div>
+          <input type="text" name="download_movie_path" value="{{.DownloadPath}}" placeholder="public/download/movie" class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-brand-500 font-mono">
+          <p class="text-[10px] text-slate-400 mt-1.5">
+            💡 Mendukung path relatif ke folder project (contoh: <code class="text-slate-600 dark:text-slate-300">public/download/movie</code>) maupun path absolut drive lain (contoh: <code class="text-slate-600 dark:text-slate-300">D:\FilmCINEMBROT</code>).
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end pt-2">
+        <button type="submit" class="bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs px-6 py-2.5 rounded-xl transition shadow flex items-center gap-2">
+          <i class="fa-solid fa-floppy-disk"></i> Simpan Pengaturan Sistem & Jadwal
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ==================== 2. MANUAL SCRAPING & LINK CHECKER ==================== -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- SCRAPER TOOL -->
+    <div class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 rounded-2xl p-6 shadow-sm space-y-4">
+      <div class="flex items-center gap-3 pb-3 border-b border-slate-100 dark:border-dark-800">
+        <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center text-lg"><i class="fa-solid fa-robot"></i></div>
+        <div>
+          <h3 class="text-sm font-bold text-slate-900 dark:text-white">Scraping Film Manual On-Demand</h3>
+          <p class="text-xs text-slate-400">Eksekusi instan untuk mengambil katalog film tahun tertentu ke MariaDB</p>
+        </div>
+      </div>
+
+      <form action="/admin/tools/scrape" method="POST" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Tahun Rilis Film</label>
+          <input type="number" name="year" value="2026" required class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-brand-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Jumlah Halaman</label>
+            <input type="number" name="pages" value="2" min="1" max="10" class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-brand-500">
+            <span class="text-[10px] text-slate-400">1 halaman = 20 film</span>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Sumber Scraper</label>
+            <select name="source" class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-brand-500 font-medium">
+              <option value="all" selected>✨ Semua Sumber Aktif</option>
+              {{range .Sources}}
+              <option value="{{.Code}}">{{.Name}} ({{.Type}})</option>
+              {{end}}
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-3 rounded-xl transition shadow flex items-center justify-center gap-2">
+          <i class="fa-solid fa-play"></i> Mulai Scraping Manual Sekarang
+        </button>
+      </form>
+    </div>
+
+    <!-- LINK HEALTH CHECKER TOOL -->
+    <div class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 rounded-2xl p-6 shadow-sm space-y-4">
+      <div class="flex items-center gap-3 pb-3 border-b border-slate-100 dark:border-dark-800">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-lg"><i class="fa-solid fa-link"></i></div>
+        <div>
+          <h3 class="text-sm font-bold text-slate-900 dark:text-white">Pengecekan Kesehatan Link Unduhan</h3>
+          <p class="text-xs text-slate-400">Pindai seluruh tautan download di database dan sembunyikan link yang mati</p>
+        </div>
+      </div>
+
+      <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+        Sistem akan mengirimkan request HTTP HEAD ringan ke seluruh server penyedia link unduhan (Archive.org, Direct, dll). Link yang offline atau 404 otomatis ditandai <span class="text-red-500 font-bold">DEAD</span> dan disembunyikan dari pengunjung.
+      </p>
+
+      <form action="/admin/tools/check-links" method="POST" class="pt-4">
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-3 rounded-xl transition shadow flex items-center justify-center gap-2">
+          <i class="fa-solid fa-shield-halved"></i> Periksa Seluruh Link Download DB
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- SCRAPING AUDIT LOGS TABLE -->
+  <div class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 rounded-2xl p-6 shadow-sm">
+    <h3 class="text-sm font-bold text-slate-900 dark:text-white pb-3 border-b border-slate-100 dark:border-dark-800 mb-4 flex items-center gap-2">
+      <i class="fa-solid fa-list-check text-brand-500"></i> Riwayat & Log Aktivitas Scraper Terkini
+    </h3>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs">
+        <thead class="bg-slate-50 dark:bg-dark-950 text-slate-500 uppercase font-bold text-[10px]">
+          <tr>
+            <th class="py-2.5 px-3">Sumber Web</th>
+            <th class="py-2.5 px-3">Target URL</th>
+            <th class="py-2.5 px-3 text-center">Status</th>
+            <th class="py-2.5 px-3 text-center">Film Didapat</th>
+            <th class="py-2.5 px-3 text-center">Durasi</th>
+            <th class="py-2.5 px-3 text-right">Waktu</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-dark-800">
+          {{range .Logs}}
+          <tr class="hover:bg-slate-50 dark:hover:bg-dark-850">
+            <td class="py-2.5 px-3 font-bold text-slate-800 dark:text-slate-200">{{.SourceWebsite}}</td>
+            <td class="py-2.5 px-3 text-slate-400 truncate max-w-xs">{{.TargetURL}}</td>
+            <td class="py-2.5 px-3 text-center">
+              <span class="px-2 py-0.5 rounded font-bold text-[10px] {{if eq .Status "SUCCESS"}}bg-emerald-500/10 text-emerald-600 dark:text-emerald-400{{else}}bg-red-500/10 text-red-500{{end}}">
+                {{.Status}}
+              </span>
+            </td>
+            <td class="py-2.5 px-3 text-center font-bold">{{.ItemsScraped}}</td>
+            <td class="py-2.5 px-3 text-center text-slate-400">{{.ExecutionTimeMs}} ms</td>
+            <td class="py-2.5 px-3 text-right text-slate-400">{{timeAgo .CreatedAt}}</td>
+          </tr>
+          {{else}}
+          <tr>
+            <td colspan="6" class="py-8 text-center text-slate-400">Belum ada riwayat aktivitas log.</td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{{end}}

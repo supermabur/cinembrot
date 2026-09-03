@@ -1,0 +1,68 @@
+{{define "content"}}
+<div class="space-y-6">
+
+  <!-- HEADER -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-base font-bold text-slate-900 dark:text-white">Moderasi Komentar Penonton</h2>
+      <p class="text-xs text-slate-400">Kelola dan setujui ulasan yang dikirimkan oleh pengunjung web</p>
+    </div>
+    <span class="text-xs font-bold bg-slate-100 dark:bg-dark-800 text-slate-600 dark:text-slate-300 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-dark-700">
+      Total: {{len .Comments}} Komentar
+    </span>
+  </div>
+
+  <!-- COMMENTS LIST -->
+  <div class="space-y-3">
+    {{range .Comments}}
+    <div class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 p-5 rounded-2xl shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div class="flex items-start gap-3.5 overflow-hidden">
+        <div class="w-10 h-10 rounded-full bg-brand-500 text-white flex items-center justify-center font-black text-sm shrink-0 shadow">
+          {{slice .AuthorName 0 1}}
+        </div>
+        <div class="overflow-hidden">
+          <div class="flex items-center gap-2 mb-1">
+            <h4 class="text-xs font-bold text-slate-900 dark:text-white">{{.AuthorName}}</h4>
+            {{if .AuthorEmail}}<span class="text-[10px] text-slate-400">({{.AuthorEmail}})</span>{{end}}
+            <span class="bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-bold px-1.5 py-0.5 rounded">
+              <i class="fa-solid fa-star text-[9px]"></i> {{.Rating}}/10
+            </span>
+            {{if .IsApproved}}
+            <span class="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold px-1.5 py-0.5 rounded border border-emerald-500/20">
+              Disetujui
+            </span>
+            {{else}}
+            <span class="bg-red-500/10 text-red-500 text-[10px] font-bold px-1.5 py-0.5 rounded border border-red-500/20">
+              Disembunyikan
+            </span>
+            {{end}}
+          </div>
+          <p class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">{{.Content}}</p>
+          <span class="text-[10px] text-slate-400 mt-1 block">{{timeAgo .CreatedAt}} • Movie ID: #{{.MovieID}}</span>
+        </div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="flex items-center gap-2 shrink-0 self-end sm:self-center">
+        <form action="/admin/comments/approve/{{.ID}}" method="POST" class="inline">
+          <button type="submit" class="text-xs font-bold px-3 py-1.5 rounded-lg border transition {{if .IsApproved}}bg-slate-100 dark:bg-dark-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-dark-700 hover:bg-amber-500 hover:text-white{{else}}bg-emerald-500 text-white border-emerald-600 hover:bg-emerald-600{{end}}">
+            {{if .IsApproved}}<i class="fa-solid fa-eye-slash mr-1"></i> Sembunyikan{{else}}<i class="fa-solid fa-check mr-1"></i> Setujui{{end}}
+          </button>
+        </form>
+
+        <form action="/admin/comments/delete/{{.ID}}" method="POST" onsubmit="return confirm('Hapus komentar ini?');" class="inline">
+          <button type="submit" class="p-1.5 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition text-xs font-bold">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+    {{else}}
+    <div class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 p-12 text-center rounded-2xl text-slate-400 text-xs">
+      Belum ada komentar penonton yang masuk.
+    </div>
+    {{end}}
+  </div>
+
+</div>
+{{end}}

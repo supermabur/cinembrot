@@ -1,0 +1,486 @@
+{{define "content"}}
+<div class="max-w-5xl mx-auto space-y-6">
+
+  <div class="flex items-center justify-between">
+    <a href="/admin/movies" class="text-xs text-slate-500 hover:text-slate-200 transition flex items-center gap-1.5 font-bold">
+      <i class="fa-solid fa-arrow-left"></i> Kembali ke Daftar Film
+    </a>
+    {{if .Movie.ID}}
+    <a href="/movie/{{.Movie.Slug}}" target="_blank" class="bg-slate-100 hover:bg-slate-200 dark:bg-dark-800 dark:hover:bg-dark-700 text-slate-700 dark:text-slate-200 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 dark:border-dark-700 transition flex items-center gap-1.5">
+      <i class="fa-solid fa-eye"></i> Lihat di Web Publik
+    </a>
+    {{end}}
+  </div>
+
+  <form action="{{if .Movie.ID}}/admin/movies/edit/{{.Movie.ID}}{{else}}/admin/movies/new{{end}}" method="POST" class="space-y-6">
+
+    <!-- 1. INFORMASI UTAMA FILM -->
+    <div class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 rounded-2xl p-6 shadow-sm space-y-4">
+      <h3 class="text-sm font-bold text-slate-900 dark:text-white pb-3 border-b border-slate-100 dark:border-dark-800 flex items-center gap-2">
+        <i class="fa-solid fa-circle-info text-brand-500"></i> Informasi Utama Film
+      </h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- JUDUL -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Judul Film *</label>
+          <input type="text" name="title" value="{{.Movie.Title}}" required placeholder="Judul Film" 
+            class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-brand-500">
+        </div>
+
+        <!-- JUDUL ASLI -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Judul Asli (Original Title)</label>
+          <input type="text" name="original_title" value="{{.Movie.OriginalTitle}}" placeholder="Original Title" 
+            class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-brand-500">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <!-- TAHUN -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Tahun Rilis</label>
+          <input type="number" name="year" value="{{.Movie.Year}}" placeholder="2024" 
+            class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-brand-500">
+        </div>
+
+        <!-- RATING -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Rating (1 - 10)</label>
+          <input type="text" name="rating" value="{{.Movie.Rating}}" placeholder="8.5" 
+            class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-brand-500">
+        </div>
+
+        <!-- DURASI -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Durasi (Menit)</label>
+          <input type="number" name="duration_minutes" value="{{.Movie.DurationMinutes}}" placeholder="120" 
+            class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-brand-500">
+        </div>
+
+        <!-- KUALITAS -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Kualitas</label>
+          <input type="text" name="quality" value="{{.Movie.Quality}}" placeholder="HD / 4K / CAM" 
+            class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-brand-500">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <!-- NEGARA -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Negara Asal</label>
+          <input type="text" name="country" value="{{.Movie.Country}}" placeholder="Indonesia / United States" 
+            class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-brand-500">
+        </div>
+
+        <!-- BAHASA -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Bahasa</label>
+          <input type="text" name="language" value="{{.Movie.Language}}" placeholder="Indonesian / English" 
+            class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-brand-500">
+        </div>
+
+        <!-- TIPE LISENSI -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Tipe Lisensi / Kategori</label>
+          <select name="license_type" class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-brand-500">
+            <option value="Public Domain" {{if eq .Movie.LicenseType "Public Domain"}}selected{{end}}>Public Domain (Gratis)</option>
+            <option value="Creative Commons" {{if eq .Movie.LicenseType "Creative Commons"}}selected{{end}}>Creative Commons (Gratis)</option>
+            <option value="Berlisensi Komersil" {{if eq .Movie.LicenseType "Berlisensi Komersil"}}selected{{end}}>Berlisensi Komersil (Copyrighted)</option>
+          </select>
+        </div>
+
+        <!-- ASAL SUMBER DATA -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Asal Sumber Scraping</label>
+          <div class="flex items-center gap-1.5">
+            <input type="text" name="source_website" value="{{if .Movie.SourceWebsite}}{{.Movie.SourceWebsite}}{{else}}Input Manual (CMS){{end}}" placeholder="Contoh: yts.lt / themoviedb.org" 
+              class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-brand-500 font-medium">
+            {{if .Movie.SourceURL}}
+            <a href="{{.Movie.SourceURL}}" target="_blank" class="p-2.5 bg-slate-100 hover:bg-brand-500 hover:text-white dark:bg-dark-800 text-slate-600 dark:text-slate-300 rounded-xl transition shrink-0 text-xs" title="Buka URL Sumber Asli">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            </a>
+            {{end}}
+          </div>
+        </div>
+      </div>
+
+      <!-- SINOPSIS -->
+      <div>
+        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Sinopsis Film</label>
+        <textarea name="synopsis" rows="4" placeholder="Tuliskan sinopsis alur cerita film..." 
+          class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl p-3 focus:outline-none focus:border-brand-500 leading-relaxed">{{.Movie.Synopsis}}</textarea>
+      </div>
+    </div>
+
+    <!-- 2. GAMBAR & TRAILER (DENGAN PREVIEW VISUAL LANGSUNG) -->
+    <div class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 rounded-2xl p-6 shadow-sm space-y-6">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-dark-800">
+        <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <i class="fa-solid fa-photo-film text-brand-500"></i> Media: Poster, Backdrop Hero & Trailer
+        </h3>
+        <span class="text-xs text-slate-400">Pratinjau visual langsung</span>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- POSTER (4 COLS) -->
+        <div class="lg:col-span-4 space-y-3">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+            <i class="fa-solid fa-image text-brand-500 mr-1"></i> Poster Film (Rasio 2:3)
+          </label>
+          <div class="flex items-start gap-3.5">
+            <!-- POSTER PREVIEW CARD -->
+            <div class="w-28 sm:w-32 aspect-[2/3] rounded-xl overflow-hidden bg-slate-100 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 shadow-sm shrink-0 flex items-center justify-center relative group">
+              <img id="poster-preview-img" 
+                src="{{if .Movie.PosterURL}}{{.Movie.PosterURL}}{{else}}/assets/placeholder-poster.png{{end}}" 
+                alt="Poster Preview" 
+                class="w-full h-full object-cover transition duration-200 group-hover:scale-105"
+                onerror="this.src='/uploads/posters/poster_placeholder.webp'; this.onerror=null;">
+              <div class="absolute bottom-1 right-1 bg-black/70 text-[9px] text-white px-1.5 py-0.5 rounded font-mono">Poster</div>
+            </div>
+            <!-- POSTER INPUT -->
+            <div class="flex-1 space-y-2">
+              <p class="text-[11px] text-slate-500">URL Gambar poster (WebP lokal atau URL gambar HTTPS):</p>
+              <input type="text" id="input-poster-url" name="poster_url" value="{{.Movie.PosterURL}}" 
+                placeholder="/uploads/posters/..." 
+                oninput="updatePosterPreview(this.value)"
+                class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-brand-500 font-mono">
+              {{if .Movie.PosterURL}}
+              <a href="{{.Movie.PosterURL}}" target="_blank" class="inline-flex items-center gap-1 text-[11px] text-brand-500 hover:underline">
+                <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> Buka Gambar Asli
+              </a>
+              {{end}}
+            </div>
+          </div>
+        </div>
+
+        <!-- BACKDROP (5 COLS) -->
+        <div class="lg:col-span-5 space-y-3">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+            <i class="fa-solid fa-panorama text-purple-500 mr-1"></i> Backdrop Hero (Rasio 16:9 Widescreen)
+          </label>
+          <div class="space-y-2">
+            <!-- BACKDROP PREVIEW CARD -->
+            <div class="w-full aspect-[16/9] max-h-40 rounded-xl overflow-hidden bg-slate-100 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 shadow-sm relative group flex items-center justify-center">
+              <img id="backdrop-preview-img" 
+                src="{{if .Movie.BackdropURL}}{{.Movie.BackdropURL}}{{else}}/assets/placeholder-backdrop.png{{end}}" 
+                alt="Backdrop Preview" 
+                class="w-full h-full object-cover transition duration-200 group-hover:scale-105"
+                onerror="this.src='/uploads/backdrops/backdrop_placeholder.webp'; this.onerror=null;">
+              <div class="absolute bottom-1 right-1 bg-black/70 text-[9px] text-white px-1.5 py-0.5 rounded font-mono">16:9 Hero</div>
+            </div>
+            <!-- BACKDROP INPUT -->
+            <input type="text" id="input-backdrop-url" name="backdrop_url" value="{{.Movie.BackdropURL}}" 
+              placeholder="/uploads/backdrops/..." 
+              oninput="updateBackdropPreview(this.value)"
+              class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-brand-500 font-mono">
+          </div>
+        </div>
+
+        <!-- TRAILER (3 COLS) -->
+        <div class="lg:col-span-3 space-y-3">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+            <i class="fa-brands fa-youtube text-red-500 mr-1"></i> Trailer YouTube
+          </label>
+          <div class="space-y-2">
+            <div class="w-full aspect-[16/9] max-h-40 rounded-xl overflow-hidden bg-slate-100 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 shadow-sm flex items-center justify-center relative">
+              {{if .Movie.TrailerURL}}
+              <a href="{{.Movie.TrailerURL}}" target="_blank" class="flex flex-col items-center gap-1.5 text-red-500 hover:scale-105 transition p-3 text-center">
+                <i class="fa-brands fa-youtube text-4xl"></i>
+                <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200">Tonton Trailer</span>
+              </a>
+              {{else}}
+              <div class="text-center text-slate-400 text-xs p-3">
+                <i class="fa-brands fa-youtube text-3xl mb-1 opacity-40"></i>
+                <p class="text-[10px]">Belum ada URL trailer</p>
+              </div>
+              {{end}}
+            </div>
+            <input type="text" name="trailer_url" value="{{.Movie.TrailerURL}}" 
+              placeholder="https://www.youtube.com/watch?v=..." 
+              class="w-full bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-brand-500 font-mono">
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 3A. FILE DOWNLOAD SUDAH MATANG (HARDSUB INDONESIA) -->
+    <div class="w-full bg-white dark:bg-dark-900 border-2 border-emerald-500/40 dark:border-emerald-500/20 rounded-2xl p-6 shadow-sm space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-dark-800">
+        <div>
+          <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <i class="fa-solid fa-circle-check text-emerald-500"></i> 1. File Download Sudah Matang (Hardsub Indonesia)
+          </h3>
+          <p class="text-xs text-slate-500 mt-0.5">File ini adalah hasil render Hardsub yang tampil di halaman depan untuk diunduh langsung oleh penonton (MP4).</p>
+        </div>
+        <button type="button" onclick="addMatangRow()" class="text-xs bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold px-3 py-1.5 rounded-lg hover:bg-emerald-500 hover:text-white transition whitespace-nowrap self-start sm:self-auto">
+          <i class="fa-solid fa-plus mr-1"></i> Tambah File Matang
+        </button>
+      </div>
+
+      <div id="matang-rows" class="space-y-3">
+        {{range .Movie.MatangDownloads}}
+        <div class="flex flex-wrap lg:flex-nowrap items-center gap-2.5 p-3.5 bg-emerald-50/40 dark:bg-dark-950 border border-emerald-200 dark:border-dark-800 rounded-xl">
+          <div class="w-full lg:w-48">
+            <label class="block text-[10px] font-bold text-slate-400 mb-1 lg:hidden">Provider</label>
+            <input type="text" name="dl_provider[]" value="{{.Provider}}" placeholder="Provider" class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-2.5 py-2 text-slate-900 dark:text-slate-100 dl-provider font-bold text-emerald-700 dark:text-emerald-400">
+          </div>
+          <div class="w-full lg:flex-1">
+            <label class="block text-[10px] font-bold text-slate-400 mb-1 lg:hidden">URL File</label>
+            <input type="text" name="dl_url[]" value="{{.URL}}" placeholder="URL File Video (/downloads/...)" class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-2.5 py-2 text-slate-900 dark:text-slate-100 dl-url font-mono">
+          </div>
+          <div class="w-32">
+            <label class="block text-[10px] font-bold text-slate-400 mb-1 lg:hidden">Kualitas</label>
+            <input type="text" name="dl_quality[]" value="{{.Quality}}" placeholder="Kualitas" class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-2.5 py-2 text-slate-900 dark:text-slate-100 dl-quality">
+          </div>
+          <div class="w-24">
+            <label class="block text-[10px] font-bold text-slate-400 mb-1 lg:hidden">Resolusi</label>
+            <input type="text" name="dl_resolution[]" value="{{.Resolution}}" placeholder="1280x720" class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-2.5 py-2 text-slate-900 dark:text-slate-100">
+          </div>
+          <div class="w-24">
+            <label class="block text-[10px] font-bold text-slate-400 mb-1 lg:hidden">Ukuran</label>
+            <input type="text" name="dl_size[]" value="{{.FileSize}}" placeholder="Ukuran" class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-2.5 py-2 text-slate-900 dark:text-slate-100">
+          </div>
+          <a href="{{safeURL .URL}}" target="_blank" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-dark-800 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-lg flex items-center gap-1 shrink-0" title="Uji Download / Putar">
+            <i class="fa-solid fa-play text-[10px]"></i> Uji
+          </a>
+          <button type="button" onclick="this.parentElement.remove()" class="p-2 text-red-500 hover:bg-red-500/10 rounded-lg shrink-0"><i class="fa-solid fa-trash"></i></button>
+        </div>
+        {{else}}
+        <div class="py-4 text-center text-xs text-slate-400 border border-dashed border-slate-200 dark:border-dark-800 rounded-xl">
+          Belum ada file matang. Silakan render hardsub dari antrean torrent atau klik "Tambah File Matang".
+        </div>
+        {{end}}
+      </div>
+    </div>
+
+    <!-- 3B. LINK UNDUHAN TORRENT (BAHAN BAKU / YTS / MAGNET) -->
+    <div class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 rounded-2xl p-6 shadow-sm space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-dark-800">
+        <div>
+          <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <i class="fa-solid fa-magnet text-blue-500"></i> 2. Link Unduhan Torrent (Bahan Baku / Mentah)
+          </h3>
+          <p class="text-xs text-slate-500 mt-0.5">Link torrent / magnet dari YTS. Klik tombol "Download Torrent" untuk mengunduh film dan menyiapkan subtitle Indonesia.</p>
+        </div>
+        <button type="button" onclick="addTorrentRow()" class="text-xs bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold px-3 py-1.5 rounded-lg hover:bg-blue-500 hover:text-white transition whitespace-nowrap self-start sm:self-auto">
+          <i class="fa-solid fa-plus mr-1"></i> Tambah Link Torrent
+        </button>
+      </div>
+
+      <div id="torrent-rows" class="space-y-3">
+        {{range .Movie.TorrentDownloads}}
+        <div class="flex flex-wrap lg:flex-nowrap items-center gap-2.5 p-3.5 bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-800 rounded-xl download-link-item">
+          <div class="w-full lg:w-40">
+            <label class="block text-[10px] font-bold text-slate-400 mb-1 lg:hidden">Provider</label>
+            <input type="text" name="dl_provider[]" value="{{.Provider}}" placeholder="Provider" class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-2.5 py-2 text-slate-900 dark:text-slate-100 dl-provider font-medium">
+          </div>
+          <div class="w-full lg:flex-1">
+            <label class="block text-[10px] font-bold text-slate-400 mb-1 lg:hidden">URL Torrent / Magnet</label>
+            <input type="text" name="dl_url[]" value="{{.URL}}" placeholder="https://... atau magnet:?..." class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-2.5 py-2 text-slate-900 dark:text-slate-100 dl-url font-mono text-[11px]">
+          </div>
+          <div class="w-32">
+            <label class="block text-[10px] font-bold text-slate-400 mb-1 lg:hidden">Kualitas</label>
+            <input type="text" name="dl_quality[]" value="{{.Quality}}" placeholder="720p (BLURAY)" class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-2.5 py-2 text-slate-900 dark:text-slate-100 dl-quality">
+          </div>
+          <div class="w-24">
+            <label class="block text-[10px] font-bold text-slate-400 mb-1 lg:hidden">Resolusi</label>
+            <input type="text" name="dl_resolution[]" value="{{.Resolution}}" placeholder="1280x720" class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-2.5 py-2 text-slate-900 dark:text-slate-100">
+          </div>
+          <div class="w-24">
+            <label class="block text-[10px] font-bold text-slate-400 mb-1 lg:hidden">Ukuran</label>
+            <input type="text" name="dl_size[]" value="{{.FileSize}}" placeholder="996 MB" class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-2.5 py-2 text-slate-900 dark:text-slate-100">
+          </div>
+          <button type="button" onclick="triggerTorrentDownload(this, '{{$.Movie.ID}}')" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg flex items-center gap-1.5 transition whitespace-nowrap shadow-sm shrink-0" title="Download torrent ini dan subtitle otomatis">
+            <i class="fa-solid fa-cloud-arrow-down"></i> <span>Download Torrent</span>
+          </button>
+          <button type="button" onclick="this.parentElement.remove()" class="p-2 text-red-500 hover:bg-red-500/10 rounded-lg shrink-0"><i class="fa-solid fa-trash"></i></button>
+        </div>
+        {{end}}
+      </div>
+    </div>
+
+    <!-- 4. STREAM PLAYER LINKS -->
+    <div class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 rounded-2xl p-6 shadow-sm space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-dark-800">
+        <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <i class="fa-solid fa-play text-purple-500"></i> Server Player Streaming
+        </h3>
+        <button type="button" onclick="addStreamRow()" class="text-xs bg-purple-500/10 text-purple-600 dark:text-purple-400 font-bold px-3 py-1.5 rounded-lg hover:bg-purple-500 hover:text-white transition">
+          <i class="fa-solid fa-plus mr-1"></i> Tambah Server Player
+        </button>
+      </div>
+
+      <div id="stream-rows" class="space-y-3">
+        {{range .Movie.StreamLinks}}
+        <div class="flex items-center gap-2 p-3 bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-800 rounded-xl">
+          <input type="text" name="stream_server[]" value="{{.ServerName}}" placeholder="Nama Server (cth: Server VIP 1)" class="w-40 bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-2.5 py-2 text-slate-900 dark:text-slate-100">
+          <input type="text" name="stream_url[]" value="{{.EmbedURL}}" placeholder="URL Embed Player Video" class="flex-1 bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-2.5 py-2 text-slate-900 dark:text-slate-100">
+          <input type="text" name="stream_quality[]" value="{{.Quality}}" placeholder="HD 1080p" class="w-28 bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-2.5 py-2 text-slate-900 dark:text-slate-100">
+          <button type="button" onclick="this.parentElement.remove()" class="p-2 text-red-500 hover:bg-red-500/10 rounded-lg"><i class="fa-solid fa-trash"></i></button>
+        </div>
+        {{else}}
+        <div class="flex items-center gap-2 p-3 bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-800 rounded-xl">
+          <input type="text" name="stream_server[]" value="Server Utama" placeholder="Nama Server" class="w-40 bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-2.5 py-2 text-slate-900 dark:text-slate-100">
+          <input type="text" name="stream_url[]" placeholder="URL Embed Player Video" class="flex-1 bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-2.5 py-2 text-slate-900 dark:text-slate-100">
+          <input type="text" name="stream_quality[]" value="HD 1080p" placeholder="Kualitas" class="w-28 bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-2.5 py-2 text-slate-900 dark:text-slate-100">
+          <button type="button" onclick="this.parentElement.remove()" class="p-2 text-red-500 hover:bg-red-500/10 rounded-lg"><i class="fa-solid fa-trash"></i></button>
+        </div>
+        {{end}}
+      </div>
+    </div>
+
+    <!-- SUBMIT BUTTON -->
+    <div class="flex justify-end gap-3 pt-4">
+      <a href="/admin/movies" class="px-6 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-dark-800 dark:hover:bg-dark-700 text-slate-700 dark:text-slate-300 font-bold text-xs rounded-xl transition">
+        Batal
+      </a>
+      <button type="submit" class="px-8 py-3 bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs rounded-xl transition shadow-lg shadow-brand-500/25 flex items-center gap-2">
+        <i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan Film
+      </button>
+    </div>
+
+  </form>
+
+</div>
+
+<script>
+function updatePosterPreview(url) {
+  const img = document.getElementById('poster-preview-img');
+  if (img) {
+    img.src = url.trim() || '/uploads/posters/poster_placeholder.webp';
+  }
+}
+
+function updateBackdropPreview(url) {
+  const img = document.getElementById('backdrop-preview-img');
+  if (img) {
+    img.src = url.trim() || '/uploads/backdrops/backdrop_placeholder.webp';
+  }
+}
+
+function addMatangRow() {
+  const container = document.getElementById('matang-rows');
+  const div = document.createElement('div');
+  div.className = "flex flex-wrap lg:flex-nowrap items-center gap-2.5 p-3.5 bg-emerald-50/40 dark:bg-dark-950 border border-emerald-200 dark:border-dark-800 rounded-xl";
+  div.innerHTML = `
+    <div class="w-full lg:w-48">
+      <input type="text" name="dl_provider[]" value="Server Lokal (Hardsub Indonesia)" placeholder="Provider" class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-2.5 py-2 text-slate-900 dark:text-slate-100 dl-provider font-bold text-emerald-700 dark:text-emerald-400">
+    </div>
+    <div class="w-full lg:flex-1">
+      <input type="text" name="dl_url[]" placeholder="/downloads/film.HARDSUB.mp4" class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-2.5 py-2 text-slate-900 dark:text-slate-100 dl-url font-mono">
+    </div>
+    <div class="w-32">
+      <input type="text" name="dl_quality[]" value="720p HD (Hardsub Indo)" placeholder="Kualitas" class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-2.5 py-2 text-slate-900 dark:text-slate-100 dl-quality">
+    </div>
+    <div class="w-24">
+      <input type="text" name="dl_resolution[]" value="1280x720" placeholder="Resolusi" class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-2.5 py-2 text-slate-900 dark:text-slate-100">
+    </div>
+    <div class="w-24">
+      <input type="text" name="dl_size[]" placeholder="1.2 GB" class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-2.5 py-2 text-slate-900 dark:text-slate-100">
+    </div>
+    <button type="button" onclick="this.parentElement.remove()" class="p-2 text-red-500 hover:bg-red-500/10 rounded-lg shrink-0"><i class="fa-solid fa-trash"></i></button>
+  `;
+  container.appendChild(div);
+}
+
+function addTorrentRow() {
+  const container = document.getElementById('torrent-rows');
+  const div = document.createElement('div');
+  div.className = "flex flex-wrap lg:flex-nowrap items-center gap-2.5 p-3.5 bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-800 rounded-xl download-link-item";
+  div.innerHTML = `
+    <div class="w-full lg:w-40">
+      <input type="text" name="dl_provider[]" value="YTS Torrent File" placeholder="Provider" class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-2.5 py-2 text-slate-900 dark:text-slate-100 dl-provider font-medium">
+    </div>
+    <div class="w-full lg:flex-1">
+      <input type="text" name="dl_url[]" placeholder="https://... atau magnet:?..." class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-2.5 py-2 text-slate-900 dark:text-slate-100 dl-url font-mono text-[11px]">
+    </div>
+    <div class="w-32">
+      <input type="text" name="dl_quality[]" value="720p (BLURAY)" placeholder="Kualitas" class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-2.5 py-2 text-slate-900 dark:text-slate-100 dl-quality">
+    </div>
+    <div class="w-24">
+      <input type="text" name="dl_resolution[]" value="1280x720" placeholder="Resolusi" class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-2.5 py-2 text-slate-900 dark:text-slate-100">
+    </div>
+    <div class="w-24">
+      <input type="text" name="dl_size[]" placeholder="996 MB" class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-2.5 py-2 text-slate-900 dark:text-slate-100">
+    </div>
+    <button type="button" onclick="triggerTorrentDownload(this, '{{$.Movie.ID}}')" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg flex items-center gap-1.5 transition whitespace-nowrap shadow-sm shrink-0" title="Download torrent ini dan subtitle otomatis">
+      <i class="fa-solid fa-cloud-arrow-down"></i> <span>Download Torrent</span>
+    </button>
+    <button type="button" onclick="this.parentElement.remove()" class="p-2 text-red-500 hover:bg-red-500/10 rounded-lg shrink-0"><i class="fa-solid fa-trash"></i></button>
+  `;
+  container.appendChild(div);
+}
+
+function addStreamRow() {
+  const container = document.getElementById('stream-rows');
+  const div = document.createElement('div');
+  div.className = "flex items-center gap-2 p-3 bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-800 rounded-xl";
+  div.innerHTML = `
+    <input type="text" name="stream_server[]" value="Server Cadangan" placeholder="Nama Server" class="w-40 bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-2.5 py-2 text-slate-900 dark:text-slate-100">
+    <input type="text" name="stream_url[]" placeholder="URL Embed Player Video" class="flex-1 bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-2.5 py-2 text-slate-900 dark:text-slate-100">
+    <input type="text" name="stream_quality[]" value="HD 1080p" placeholder="Kualitas" class="w-28 bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-xs rounded-lg px-2.5 py-2 text-slate-900 dark:text-slate-100">
+    <button type="button" onclick="this.parentElement.remove()" class="p-2 text-red-500 hover:bg-red-500/10 rounded-lg"><i class="fa-solid fa-trash"></i></button>
+  `;
+  container.appendChild(div);
+}
+
+async function triggerTorrentDownload(btn, movieID) {
+  const row = btn.closest('.download-link-item');
+  if (!row) return;
+
+  const urlInput = row.querySelector('.dl-url');
+  const qualityInput = row.querySelector('.dl-quality');
+  const url = urlInput ? urlInput.value.trim() : '';
+  const quality = qualityInput ? qualityInput.value.trim() : 'HD';
+
+  if (!url) {
+    alert('URL unduhan torrent masih kosong!');
+    return;
+  }
+
+  if (!confirm(`Mulai unduh torrent (${quality}) dan siapkan subtitle Bahasa Indonesia di latar belakang?`)) {
+    return;
+  }
+
+  const originalHTML = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Menambahkan...`;
+
+  try {
+    const params = new URLSearchParams();
+    params.append('movie_id', movieID);
+    params.append('torrent_url', url);
+    params.append('quality', quality);
+
+    const res = await fetch('/api/admin/downloads/add', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: params.toString()
+    });
+
+    const data = await res.json();
+    if (res.ok && data.success) {
+      btn.className = "px-3 py-2 bg-emerald-600 text-white font-bold text-xs rounded-lg flex items-center gap-1.5 whitespace-nowrap shadow-sm";
+      btn.innerHTML = `<i class="fa-solid fa-check"></i> Mengunduh...`;
+      if (confirm(data.message + '\n\nApakah Anda ingin membuka halaman Pengelola Unduhan sekarang?')) {
+        window.location.href = '/admin/downloads';
+      }
+    } else {
+      alert('Gagal: ' + (data.error || 'Terjadi kesalahan'));
+      btn.disabled = false;
+      btn.innerHTML = originalHTML;
+    }
+  } catch (err) {
+    alert('Terjadi kesalahan koneksi: ' + err.message);
+    btn.disabled = false;
+    btn.innerHTML = originalHTML;
+  }
+}
+</script>
+{{end}}

@@ -1,0 +1,121 @@
+{{define "content"}}
+<div class="space-y-8">
+
+  <!-- STATS CARDS GRID -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    <!-- TOTAL MOVIES -->
+    <div class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 p-6 rounded-2xl shadow-sm">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Film</span>
+        <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center text-lg"><i class="fa-solid fa-film"></i></div>
+      </div>
+      <div class="text-3xl font-black text-slate-900 dark:text-white">{{index .Stats "total_movies"}}</div>
+      <p class="text-xs text-slate-400 mt-1"><span class="text-emerald-500 font-bold">{{index .Stats "free_movies"}}</span> Film Gratis / Open</p>
+    </div>
+
+    <!-- TOTAL DOWNLOADS -->
+    <div class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 p-6 rounded-2xl shadow-sm">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Link Download</span>
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-lg"><i class="fa-solid fa-download"></i></div>
+      </div>
+      <div class="text-3xl font-black text-slate-900 dark:text-white">{{index .Stats "total_downloads"}}</div>
+      <p class="text-xs text-slate-400 mt-1"><span class="text-emerald-500 font-bold">{{index .Stats "active_downloads"}}</span> Aktif Terverifikasi</p>
+    </div>
+
+    <!-- TOTAL STREAMS -->
+    <div class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 p-6 rounded-2xl shadow-sm">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Server Player</span>
+        <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center text-lg"><i class="fa-solid fa-play"></i></div>
+      </div>
+      <div class="text-3xl font-black text-slate-900 dark:text-white">{{index .Stats "total_streams"}}</div>
+      <p class="text-xs text-slate-400 mt-1">Embed Streaming Online</p>
+    </div>
+
+    <!-- TOTAL COMMENTS & USERS -->
+    <div class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 p-6 rounded-2xl shadow-sm">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Komentar & Pengguna</span>
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center text-lg"><i class="fa-solid fa-comments"></i></div>
+      </div>
+      <div class="text-3xl font-black text-slate-900 dark:text-white">{{index .Stats "total_comments"}}</div>
+      <p class="text-xs text-slate-400 mt-1"><span class="text-brand-500 font-bold">{{index .Stats "total_users"}}</span> Pengelola CMS</p>
+    </div>
+  </div>
+
+  <!-- QUICK ACTIONS -->
+  <div class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 rounded-2xl p-6 shadow-sm">
+    <h2 class="text-base font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+      <i class="fa-solid fa-bolt text-brand-500"></i> Aksi Cepat CMS
+    </h2>
+    <div class="flex flex-wrap gap-3">
+      <a href="/admin/movies/new" class="bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow flex items-center gap-2">
+        <i class="fa-solid fa-plus"></i> Tambah Film Baru
+      </a>
+      <a href="/admin/movies" class="bg-slate-100 hover:bg-slate-200 dark:bg-dark-800 dark:hover:bg-dark-700 text-slate-700 dark:text-slate-200 font-bold text-xs px-4 py-2.5 rounded-xl transition flex items-center gap-2 border border-slate-200 dark:border-dark-700">
+        <i class="fa-solid fa-list"></i> Lihat Semua Film
+      </a>
+      <a href="/admin/users" class="bg-slate-100 hover:bg-slate-200 dark:bg-dark-800 dark:hover:bg-dark-700 text-slate-700 dark:text-slate-200 font-bold text-xs px-4 py-2.5 rounded-xl transition flex items-center gap-2 border border-slate-200 dark:border-dark-700">
+        <i class="fa-solid fa-user-plus"></i> Tambah Pengguna Lain
+      </a>
+      <a href="/admin/tools" class="bg-slate-100 hover:bg-slate-200 dark:bg-dark-800 dark:hover:bg-dark-700 text-slate-700 dark:text-slate-200 font-bold text-xs px-4 py-2.5 rounded-xl transition flex items-center gap-2 border border-slate-200 dark:border-dark-700">
+        <i class="fa-solid fa-robot"></i> Jalankan Scraper / Validator
+      </a>
+    </div>
+  </div>
+
+  <!-- RECENT MOVIES & RECENT COMMENTS -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- RECENT MOVIES -->
+    <div class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 rounded-2xl p-6 shadow-sm">
+      <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100 dark:border-dark-800">
+        <h3 class="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+          <i class="fa-solid fa-clock-rotate-left text-blue-500"></i> Film Terbaru Ditambahkan
+        </h3>
+        <a href="/admin/movies" class="text-xs text-brand-500 font-bold hover:underline">Semua Film →</a>
+      </div>
+      <div class="space-y-3">
+        {{range .Movies}}
+        <div class="flex items-center justify-between p-2.5 hover:bg-slate-50 dark:hover:bg-dark-800 rounded-xl transition">
+          <div class="flex items-center gap-3 overflow-hidden">
+            <img src="{{if .PosterThumbURL}}{{.PosterThumbURL}}{{else}}{{.PosterURL}}{{end}}" class="w-10 h-14 object-cover rounded-lg bg-slate-200 dark:bg-dark-800 shrink-0">
+            <div class="overflow-hidden">
+              <h4 class="text-xs font-bold text-slate-900 dark:text-white truncate">{{.Title}}</h4>
+              <p class="text-[10px] text-slate-400 font-medium">{{.Year}} • Rating: ★ {{.Rating}}</p>
+            </div>
+          </div>
+          <a href="/admin/movies/edit/{{.ID}}" class="bg-slate-100 hover:bg-brand-500 hover:text-white dark:bg-dark-800 text-slate-600 dark:text-slate-300 font-bold text-[11px] px-3 py-1.5 rounded-lg transition shrink-0">
+            Edit
+          </a>
+        </div>
+        {{end}}
+      </div>
+    </div>
+
+    <!-- RECENT COMMENTS -->
+    <div class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 rounded-2xl p-6 shadow-sm">
+      <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100 dark:border-dark-800">
+        <h3 class="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+          <i class="fa-solid fa-comments text-amber-500"></i> Ulasan Masuk Terbaru
+        </h3>
+        <a href="/admin/comments" class="text-xs text-brand-500 font-bold hover:underline">Semua Komentar →</a>
+      </div>
+      <div class="space-y-3">
+        {{range .Comments}}
+        <div class="p-3 bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-800 rounded-xl">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-bold text-slate-800 dark:text-white">{{.AuthorName}}</span>
+            <span class="text-[10px] text-amber-500 font-bold"><i class="fa-solid fa-star text-[9px]"></i> {{.Rating}}/10</span>
+          </div>
+          <p class="text-xs text-slate-600 dark:text-slate-300 line-clamp-2">{{.Content}}</p>
+        </div>
+        {{else}}
+        <div class="py-12 text-center text-slate-400 text-xs">Belum ada komentar penonton.</div>
+        {{end}}
+      </div>
+    </div>
+  </div>
+
+</div>
+{{end}}

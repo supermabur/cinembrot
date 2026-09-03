@@ -1,0 +1,344 @@
+{{define "content"}}
+<div class="space-y-6">
+
+  <!-- BACKDROP & TITLE HEADER -->
+  <div class="flex flex-col md:flex-row gap-6 bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 rounded-2xl p-6 shadow-sm transition-colors duration-200">
+    <div class="w-full md:w-64 flex-shrink-0">
+      <img src="{{.Movie.PosterURL}}" alt="{{.Movie.Title}}" class="w-full rounded-xl shadow-md border border-slate-200 dark:border-dark-800">
+    </div>
+
+    <div class="flex-1">
+      <div class="flex flex-wrap items-center gap-2 mb-2">
+        {{if .Movie.IsFree}}
+        <span class="bg-green-600 text-white text-xs font-bold px-2.5 py-1 rounded shadow">100% GRATIS & LEGAL</span>
+        {{else}}
+        <span class="bg-blue-600 text-white text-xs font-bold px-2.5 py-1 rounded shadow">BERLISENSI KOMERSIL</span>
+        {{end}}
+        <span class="bg-slate-100 dark:bg-dark-800 text-slate-700 dark:text-slate-300 text-xs px-2.5 py-1 rounded border border-slate-200 dark:border-dark-700">{{.Movie.Quality}}</span>
+        <span class="text-yellow-500 dark:text-yellow-400 font-bold text-sm"><i class="fa-solid fa-star"></i> {{.Movie.Rating}}/10</span>
+        {{if .Movie.TrailerURL}}
+        <a href="{{.Movie.TrailerURL}}" target="_blank" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-2.5 py-1 rounded shadow flex items-center gap-1.5 transition" title="Buka Trailer Resmi di YouTube">
+          <i class="fa-brands fa-youtube"></i> Trailer YouTube
+        </a>
+        {{end}}
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-black text-slate-900 dark:text-white mb-2">{{.Movie.Title}} ({{.Movie.Year}})</h1>
+      {{if .Movie.Tagline}}<p class="text-brand-500 italic text-sm mb-3">"{{.Movie.Tagline}}"</p>{{end}}
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs text-slate-600 dark:text-slate-300 my-4 bg-slate-50 dark:bg-dark-950 p-3.5 rounded-xl border border-slate-200 dark:border-dark-800">
+        <div><span class="text-slate-400 dark:text-slate-500 font-semibold">Durasi:</span> {{.Movie.DurationFormatted}}</div>
+        <div><span class="text-slate-400 dark:text-slate-500 font-semibold">Usia:</span> {{.Movie.AgeRating}}</div>
+        <div><span class="text-slate-400 dark:text-slate-500 font-semibold">Negara:</span> {{.Movie.Country}}</div>
+        <div><span class="text-slate-400 dark:text-slate-500 font-semibold">Bahasa:</span> {{.Movie.Language}}</div>
+        <div><span class="text-slate-400 dark:text-slate-500 font-semibold">Lisensi:</span> {{.Movie.LicenseType}}</div>
+        <div><span class="text-slate-400 dark:text-slate-500 font-semibold">Views:</span> {{.Movie.Views}} kali</div>
+      </div>
+
+      <div class="flex flex-wrap gap-1.5 my-3">
+        {{range .Movie.Genres}}
+        <a href="/genre/{{.Slug}}" class="bg-slate-100 hover:bg-brand-500 hover:text-white dark:bg-dark-800 dark:hover:bg-brand-500 dark:hover:text-white text-slate-700 dark:text-slate-300 text-xs px-3 py-1 rounded-full font-medium transition border border-slate-200 dark:border-dark-700">
+          {{.Name}}
+        </a>
+        {{end}}
+      </div>
+
+      <!-- SINOPSIS BERSIH & RAPI -->
+      <div class="mt-4 space-y-3 text-slate-700 dark:text-slate-300 text-sm leading-relaxed border-t border-slate-100 dark:border-dark-800 pt-3">
+        <h3 class="font-bold text-xs uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">Sinopsis Alur Cerita</h3>
+        {{range (paragraphs .Movie.Synopsis)}}
+        <p class="text-justify">{{.}}</p>
+        {{else}}
+        <p class="italic text-slate-400">Sinopsis belum tersedia untuk judul ini.</p>
+        {{end}}
+      </div>
+    </div>
+  </div>
+
+  <!-- VIDEO PLAYER -->
+  <div class="bg-black border border-slate-200 dark:border-dark-800 rounded-2xl overflow-hidden shadow-xl">
+    <div class="bg-slate-900 px-4 py-3 border-b border-slate-800 flex items-center justify-between">
+      <span class="font-bold text-white text-sm flex items-center gap-2">
+        <i class="fa-solid fa-circle-play text-brand-500"></i>
+        {{if .Movie.StreamLinks}}
+        Video Streaming Player
+        {{else if .Movie.TrailerURL}}
+        Trailer Resmi YouTube
+        {{else}}
+        Video Streaming Player
+        {{end}}
+      </span>
+      {{if .Movie.TrailerURL}}
+      <a href="{{.Movie.TrailerURL}}" target="_blank" class="text-xs text-red-400 hover:text-red-300 font-bold flex items-center gap-1 transition">
+        <i class="fa-brands fa-youtube"></i> Buka di YouTube <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+      </a>
+      {{end}}
+    </div>
+
+    <div class="aspect-video w-full bg-black">
+      {{if .Movie.StreamLinks}}
+      <iframe src="{{(index .Movie.StreamLinks 0).EmbedURL}}" class="w-full h-full" allowfullscreen frameborder="0"></iframe>
+      {{else if .Movie.TrailerURL}}
+      <iframe src="{{youtubeEmbed .Movie.TrailerURL}}" class="w-full h-full" allowfullscreen frameborder="0"></iframe>
+      {{else}}
+      <div class="w-full h-full flex flex-col items-center justify-center text-slate-400 p-6 text-center">
+        <i class="fa-solid fa-video-slash text-5xl mb-3 text-slate-600"></i>
+        <p>Player streaming sedang disiapkan atau film tersedia melalui link download di bawah.</p>
+      </div>
+      {{end}}
+    </div>
+  </div>
+
+  <!-- ADSTERRA NATIVE BANNER -->
+  {{if .EnableAds}}
+  <div class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 rounded-2xl p-4 text-center my-6 shadow-sm">
+    <span class="text-[10px] text-slate-400 dark:text-slate-500 block mb-2 font-semibold">SPONSORED LINKS</span>
+    <div id="adsterra-native-banner" class="text-slate-400 text-xs py-3">
+      [Adsterra Native Banner Widget Slot]
+    </div>
+  </div>
+  {{end}}
+
+  <!-- DOWNLOAD LINKS SECTION (FILE MATANG HARDSUB INDO & TORRENT) -->
+  <div id="download" class="space-y-6">
+
+    <!-- 1. FILE DOWNLOAD SUDAH MATANG (HARDSUB INDONESIA) - UTAMA -->
+    <div class="bg-white dark:bg-dark-900 border-2 border-emerald-500/30 dark:border-emerald-500/20 rounded-2xl p-6 shadow-sm relative overflow-hidden">
+      <div class="absolute top-0 right-0 bg-gradient-to-l from-emerald-500 to-green-600 text-white font-black text-[10px] uppercase tracking-wider px-4 py-1 rounded-bl-xl shadow-xs">
+        <i class="fa-solid fa-fire mr-1"></i> Rekomendasi Utama
+      </div>
+
+      <div class="mb-4">
+        <h2 class="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2.5">
+          <i class="fa-solid fa-circle-check text-emerald-500 text-2xl"></i> File Download Siap Nonton (Hardsub Indonesia)
+        </h2>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          File video matang berformat MP4 dengan <b>Subtitle Bahasa Indonesia sudah menempel permanen</b>. Langsung tonton di HP, PC, atau Smart TV tanpa perlu cari subtitle lagi!
+        </p>
+      </div>
+
+      {{if .Movie.MatangDownloads}}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+        {{range .Movie.MatangDownloads}}
+        <a href="{{safeURL .URL}}" download target="_blank" class="bg-emerald-50/50 hover:bg-emerald-100/50 dark:bg-emerald-950/20 dark:hover:bg-emerald-900/30 border border-emerald-300 dark:border-emerald-700/50 hover:border-emerald-500 p-4 rounded-xl flex items-center justify-between group transition shadow-sm">
+          <div class="flex items-center gap-3">
+            <div class="bg-emerald-600 text-white p-3 rounded-xl shadow-sm group-hover:scale-105 transition">
+              <i class="fa-solid fa-file-video text-2xl"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2 mb-0.5">
+                <h4 class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition">{{.Provider}}</h4>
+                <span class="bg-emerald-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-xs">
+                  {{.Quality}}
+                </span>
+              </div>
+              <p class="text-xs text-slate-600 dark:text-slate-300 font-medium">
+                {{.Resolution}} • {{if .FileSize}}{{.FileSize}}{{else}}Format Asli{{end}} • <span class="text-emerald-600 dark:text-emerald-400 font-bold">Hardsub Indonesia</span>
+              </p>
+            </div>
+          </div>
+          <span class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-md flex items-center gap-1.5 shrink-0">
+            <i class="fa-solid fa-cloud-arrow-down text-sm"></i> Download MP4
+          </span>
+        </a>
+        {{end}}
+      </div>
+      {{else}}
+      <div class="p-5 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center gap-3.5 text-xs text-amber-800 dark:text-amber-300">
+        <i class="fa-solid fa-clock-rotate-left text-2xl text-amber-500 shrink-0"></i>
+        <div>
+          <h4 class="font-bold text-sm">File Download Matang (Hardsub Indonesia) Sedang Diproses</h4>
+          <p class="text-slate-600 dark:text-slate-400 mt-0.5">
+            Admin sedang merender rilisan Hardsub subtitle Indonesia untuk judul ini. Sementara waktu, Anda dapat mengunduh file torrent mentah pada pilihan di bawah.
+          </p>
+        </div>
+      </div>
+      {{end}}
+    </div>
+
+    <!-- 2. OPSI UNDUHAN TORRENT (BAHAN BAKU / MENTAH) -->
+    {{if .Movie.TorrentDownloads}}
+    <div class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 rounded-2xl p-6 shadow-sm space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
+            <i class="fa-solid fa-magnet text-blue-500"></i> Unduh File Torrent Asli (Bahan Baku / Mentah)
+          </h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Khusus pengguna yang memiliki aplikasi torrent (uTorrent / BitTorrent / qBittorrent). Belum termasuk subtitle permanen.
+          </p>
+        </div>
+        <span class="text-xs font-bold text-slate-500 bg-slate-100 dark:bg-dark-800 px-2.5 py-1 rounded-lg">
+          {{len .Movie.TorrentDownloads}} Link Torrent
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+        {{range .Movie.TorrentDownloads}}
+        <a href="{{safeURL .URL}}" target="_blank" class="bg-slate-50 hover:bg-slate-100 dark:bg-dark-950 dark:hover:bg-dark-800 border border-slate-200 dark:border-dark-800 hover:border-blue-500 p-3 rounded-xl flex items-center justify-between group transition">
+          <div class="flex items-center gap-2.5">
+            <div class="bg-blue-500/10 text-blue-600 dark:text-blue-400 p-2.5 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition">
+              <i class="fa-solid fa-download"></i>
+            </div>
+            <div>
+              <h4 class="text-xs font-bold text-slate-800 dark:text-white group-hover:text-blue-600 transition">{{.Provider}} - {{.Quality}}</h4>
+              <p class="text-[11px] text-slate-500">{{.Resolution}} • {{if .FileSize}}{{.FileSize}}{{else}}Torrent Swarm{{end}}</p>
+            </div>
+          </div>
+          <span class="text-xs text-slate-600 dark:text-slate-300 font-bold px-3 py-1.5 bg-white dark:bg-dark-800 border border-slate-200 dark:border-dark-700 rounded-lg group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 transition flex items-center gap-1">
+            Unduh <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+          </span>
+        </a>
+        {{end}}
+      </div>
+    </div>
+    {{end}}
+
+  </div>
+
+  <!-- CAST / AKTOR -->
+  {{if .Movie.Actors}}
+  <div class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 rounded-2xl p-6 shadow-sm">
+    <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+      <i class="fa-solid fa-users text-brand-500"></i> Pemeran & Aktor:
+    </h2>
+    <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
+      {{range .Movie.Actors}}
+      <div class="bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-800 rounded-xl p-3 text-center">
+        {{if .PhotoThumbURL}}
+        <img src="{{.PhotoThumbURL}}" alt="{{.Name}}" class="w-16 h-16 rounded-full object-cover mx-auto mb-2 border border-slate-200 dark:border-dark-700 shadow-sm" loading="lazy">
+        {{else if .PhotoURL}}
+        <img src="{{.PhotoURL}}" alt="{{.Name}}" class="w-16 h-16 rounded-full object-cover mx-auto mb-2 border border-slate-200 dark:border-dark-700 shadow-sm" loading="lazy">
+        {{else}}
+        <div class="w-16 h-16 rounded-full bg-slate-200 dark:bg-dark-800 flex items-center justify-center mx-auto mb-2 text-slate-400 dark:text-slate-600"><i class="fa-solid fa-user"></i></div>
+        {{end}}
+        <p class="text-xs font-bold text-slate-800 dark:text-white truncate">{{.Name}}</p>
+        <p class="text-[10px] text-slate-500 dark:text-slate-400 truncate">{{.CharacterName}}</p>
+      </div>
+      {{end}}
+    </div>
+  </div>
+  {{end}}
+
+  <!-- ==================== USER COMMENTS SECTION (ON/OFF CONFIGURABLE) ==================== -->
+  {{if .EnableComments}}
+  <div id="comments" class="bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-800 rounded-2xl p-6 shadow-sm">
+    <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100 dark:border-dark-800">
+      <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+        <i class="fa-solid fa-comments text-brand-500"></i> Komentar & Ulasan Penonton
+      </h2>
+      <span class="bg-brand-500/10 text-brand-500 text-xs font-bold px-3 py-1 rounded-full">
+        {{len .Movie.Comments}} Komentar
+      </span>
+    </div>
+
+    <!-- FORM KIRIM KOMENTAR -->
+    <form action="/movie/{{.Movie.Slug}}/comment" method="POST" class="mb-8 bg-slate-50 dark:bg-dark-950 p-5 rounded-2xl border border-slate-200 dark:border-dark-800">
+      <h3 class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-pen-to-square text-brand-500"></i> Berikan Ulasan / Komentar Anda
+      </h3>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+        <!-- NAMA -->
+        <div>
+          <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">Nama Lengkap / Panggilan *</label>
+          <input type="text" name="name" required placeholder="Contoh: Budi Santoso" 
+            class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-brand-500">
+        </div>
+
+        <!-- EMAIL -->
+        <div>
+          <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">Email (Opsional)</label>
+          <input type="email" name="email" placeholder="email@contoh.com" 
+            class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-brand-500">
+        </div>
+
+        <!-- RATING -->
+        <div>
+          <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">Rating Film</label>
+          <select name="rating" class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-brand-500 font-semibold">
+            <option value="10">⭐⭐⭐⭐⭐ 10/10 (Mahakarya)</option>
+            <option value="9">⭐⭐⭐⭐⭐ 9/10 (Sangat Bagus)</option>
+            <option value="8" selected>⭐⭐⭐⭐ 8/10 (Bagus Sekali)</option>
+            <option value="7">⭐⭐⭐⭐ 7/10 (Menghibur)</option>
+            <option value="6">⭐⭐⭐ 6/10 (Cukup Bagus)</option>
+            <option value="5">⭐⭐⭐ 5/10 (Biasa Saja)</option>
+            <option value="4">⭐⭐ 4/10 (Kurang Memuaskan)</option>
+            <option value="3">⭐ 3/10 (Jelek)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- ISI KOMENTAR -->
+      <div class="mb-4">
+        <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">Komentar / Pendapat Anda Mengenai Film Ini *</label>
+        <textarea name="content" required rows="3" placeholder="Tuliskan ulasan, pendapat, atau kesan Anda setelah menonton film ini..."
+          class="w-full bg-white dark:bg-dark-900 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs rounded-xl p-3 focus:outline-none focus:border-brand-500 leading-relaxed"></textarea>
+      </div>
+
+      <!-- CAPTCHA VERIFIKASI KEAMANAN -->
+      <div class="mb-4 bg-white dark:bg-dark-900 border border-brand-500/30 rounded-xl p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-brand-500/10 text-brand-500 flex items-center justify-center font-bold text-base shadow-sm">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-800 dark:text-slate-200">
+              Verifikasi Anti-Spam: <span class="text-brand-500 font-black text-xs ml-1 bg-brand-500/10 px-2 py-0.5 rounded">{{.CaptchaQuestion}}</span>
+            </label>
+            <p class="text-[10px] text-slate-400 font-medium">Jawab hitungan di atas untuk membuktikan Anda bukan bot</p>
+          </div>
+        </div>
+        <div class="w-full sm:w-36">
+          <input type="hidden" name="captcha_token" value="{{.CaptchaToken}}">
+          <input type="number" name="captcha_answer" required placeholder="Jawaban..." 
+            class="w-full bg-slate-50 dark:bg-dark-850 border border-slate-200 dark:border-dark-700 text-slate-900 dark:text-slate-100 text-xs font-bold rounded-xl px-3 py-2 text-center focus:outline-none focus:border-brand-500 shadow-inner">
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between">
+        <span class="text-[11px] text-slate-400"><i class="fa-solid fa-lock text-brand-500 text-[10px] mr-1"></i> Dilindungi Captcha</span>
+        <button type="submit" class="bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs px-6 py-2.5 rounded-xl transition shadow-md flex items-center gap-2">
+          <i class="fa-solid fa-paper-plane"></i> Kirim Komentar
+        </button>
+      </div>
+    </form>
+
+    <!-- LIST KOMENTAR -->
+    <div class="space-y-4">
+      {{range .Movie.Comments}}
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-dark-950 border border-slate-200 dark:border-dark-800 transition">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-full bg-brand-500 text-white font-black text-xs flex items-center justify-center shadow">
+              {{slice .AuthorName 0 1}}
+            </div>
+            <div>
+              <h4 class="text-xs font-bold text-slate-800 dark:text-white">{{.AuthorName}}</h4>
+              <span class="text-[10px] text-slate-400 font-medium">{{timeAgo .CreatedAt}}</span>
+            </div>
+          </div>
+
+          {{if .Rating}}
+          <span class="bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-[11px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
+            <i class="fa-solid fa-star text-[10px]"></i> {{.Rating}}/10
+          </span>
+          {{end}}
+        </div>
+
+        <p class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed pl-10 font-normal">
+          {{.Content}}
+        </p>
+      </div>
+      {{else}}
+      <div class="py-8 text-center text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-dark-950 rounded-2xl border border-dashed border-slate-200 dark:border-dark-800">
+        <i class="fa-regular fa-comment-dots text-3xl mb-2 text-slate-300 dark:text-slate-600"></i>
+        <p class="text-xs font-medium">Belum ada komentar untuk film ini. Jadilah yang pertama memberikan ulasan!</p>
+      </div>
+      {{end}}
+    </div>
+  </div>
+  {{end}}
+
+</div>
+{{end}}

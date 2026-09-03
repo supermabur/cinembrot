@@ -1,0 +1,263 @@
+{{define "content"}}
+<div class="space-y-6">
+
+  <!-- PAGE HEADER -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-dark-900 p-6 rounded-2xl border border-slate-200 dark:border-dark-800 shadow-sm">
+    <div class="space-y-1">
+      <h1 class="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2.5">
+        <i class="fa-solid fa-cloud-arrow-down text-brand-500"></i> Pengelola Unduhan Torrent & Subtitle
+      </h1>
+      <p class="text-xs text-slate-500 dark:text-slate-400">
+        Monitor proses download torrent film secara real-time, seleksi subtitle Bahasa Indonesia, dan render Hardsub permanen.
+      </p>
+    </div>
+    <div class="flex items-center gap-2">
+      <a href="/admin/movies" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-dark-800 dark:hover:bg-dark-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition flex items-center gap-2">
+        <i class="fa-solid fa-plus"></i> Tambah dari Kelola Film
+      </a>
+      <button onclick="location.reload()" class="p-2.5 bg-brand-500/10 text-brand-500 hover:bg-brand-500 hover:text-white rounded-xl text-xs font-bold transition" title="Refresh Halaman">
+        <i class="fa-solid fa-rotate-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- ALERTS -->
+  {{if .SuccessMsg}}
+  <div class="p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold rounded-2xl flex items-center gap-2">
+    <i class="fa-solid fa-circle-check text-base"></i> {{.SuccessMsg}}
+  </div>
+  {{end}}
+  {{if .ErrorMsg}}
+  <div class="p-4 bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-xs font-bold rounded-2xl flex items-center gap-2">
+    <i class="fa-solid fa-triangle-exclamation text-base"></i> {{.ErrorMsg}}
+  </div>
+  {{end}}
+
+  <!-- TASKS TABLE -->
+  <div class="bg-white dark:bg-dark-900 rounded-2xl border border-slate-200 dark:border-dark-800 shadow-sm overflow-hidden">
+    <div class="p-5 border-b border-slate-100 dark:border-dark-800 flex items-center justify-between">
+      <h2 class="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
+        <i class="fa-solid fa-list-check text-blue-500"></i> Antrean & Riwayat Unduhan (<span id="task-count">{{len .Tasks}}</span>)
+      </h2>
+      <div class="flex items-center gap-1.5 text-xs text-slate-500">
+        <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Auto-Sync Realtime
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="border-b border-slate-100 dark:border-dark-800 bg-slate-50/50 dark:bg-dark-950/50 text-[11px] font-black uppercase tracking-wider text-slate-400">
+            <th class="py-3.5 px-4">Film</th>
+            <th class="py-3.5 px-3">Kualitas</th>
+            <th class="py-3.5 px-3">Status</th>
+            <th class="py-3.5 px-4 min-w-[220px]">Progres Unduhan</th>
+            <th class="py-3.5 px-3 text-center">Kecepatan</th>
+            <th class="py-3.5 px-3 text-center">Peers</th>
+            <th class="py-3.5 px-4 text-right">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="tasks-tbody" class="divide-y divide-slate-100 dark:divide-dark-800 text-xs">
+          {{range .Tasks}}
+          <tr id="task-row-{{.ID}}" class="hover:bg-slate-50/50 dark:hover:bg-dark-950/50 transition">
+            <td class="py-3.5 px-4">
+              <div class="flex items-center gap-3">
+                <img src="{{if .MoviePoster}}{{.MoviePoster}}{{else}}/uploads/posters/default_poster.webp{{end}}" class="w-10 h-14 object-cover rounded-lg shadow-sm shrink-0">
+                <div class="space-y-0.5">
+                  <h4 class="font-bold text-slate-900 dark:text-white truncate max-w-[180px] sm:max-w-xs">{{.MovieTitle}}</h4>
+                  <p class="text-[11px] text-slate-400 font-mono">Task #{{.ID}}</p>
+                </div>
+              </div>
+            </td>
+            <td class="py-3.5 px-3">
+              <span class="px-2 py-1 bg-slate-100 dark:bg-dark-800 font-bold text-[11px] rounded-md text-slate-700 dark:text-slate-300">
+                {{.Quality}}
+              </span>
+            </td>
+            <td class="py-3.5 px-3 task-status">
+              {{if eq .Status "PENDING"}}
+              <span class="px-2.5 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/20 font-bold rounded-lg text-[11px]">
+                <i class="fa-solid fa-clock mr-1"></i> Antrean
+              </span>
+              {{else if eq .Status "DOWNLOADING"}}
+              <span class="px-2.5 py-1 bg-blue-500/10 text-blue-500 border border-blue-500/20 font-bold rounded-lg text-[11px] animate-pulse">
+                <i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengunduh
+              </span>
+              {{else if eq .Status "DOWNLOADED"}}
+              <span class="px-2.5 py-1 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20 font-bold rounded-lg text-[11px]">
+                <i class="fa-solid fa-film mr-1"></i> Siap Review
+              </span>
+              {{else if eq .Status "HARDSUBBING"}}
+              <span class="px-2.5 py-1 bg-purple-500/10 text-purple-500 border border-purple-500/20 font-bold rounded-lg text-[11px] animate-pulse">
+                <i class="fa-solid fa-fire mr-1"></i> Hardsubbing...
+              </span>
+              {{else if eq .Status "COMPLETED"}}
+              <span class="px-2.5 py-1 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 font-bold rounded-lg text-[11px]">
+                <i class="fa-solid fa-circle-check mr-1"></i> Selesai
+              </span>
+              {{else if eq .Status "CANCELLED"}}
+              <span class="px-2.5 py-1 bg-slate-500/10 text-slate-500 font-bold rounded-lg text-[11px]">
+                Dibatalkan
+              </span>
+              {{else}}
+              <span class="px-2.5 py-1 bg-red-500/10 text-red-500 font-bold rounded-lg text-[11px]">
+                Gagal
+              </span>
+              {{end}}
+            </td>
+            <td class="py-3.5 px-4">
+              <div class="space-y-1.5">
+                <div class="flex justify-between text-[11px] font-bold">
+                  <span class="task-percent text-slate-700 dark:text-slate-300">{{printf "%.1f" .ProgressPercent}}%</span>
+                  <span class="task-bytes text-slate-400 font-normal">
+                    {{if gt .TotalBytes 0}}
+                      {{printf "%.2f MB / %.2f GB" (div (float .DownloadedBytes) 1048576) (div (float .TotalBytes) 1073741824)}}
+                    {{else}}
+                      0 MB / 0 GB
+                    {{end}}
+                  </span>
+                </div>
+                <div class="w-full h-2 bg-slate-100 dark:bg-dark-800 rounded-full overflow-hidden">
+                  <div class="task-progressbar h-full {{if eq .Status "COMPLETED"}}bg-emerald-500{{else if eq .Status "DOWNLOADED"}}bg-yellow-500{{else if eq .Status "HARDSUBBING"}}bg-purple-500{{else}}bg-blue-500{{end}} rounded-full transition-all duration-300" style="width: {{.ProgressPercent}}%"></div>
+                </div>
+              </div>
+            </td>
+            <td class="py-3.5 px-3 text-center font-mono text-[11px] font-bold text-slate-600 dark:text-slate-300 task-speed">
+              {{if eq .Status "DOWNLOADING"}}{{printf "%.2f" .DownloadSpeedMBs}} MB/s{{else}}-{{end}}
+            </td>
+            <td class="py-3.5 px-3 text-center text-[11px] font-bold text-slate-600 dark:text-slate-300 task-peers">
+              {{if eq .Status "DOWNLOADING"}}{{.PeersCount}}{{else}}-{{end}}
+            </td>
+            <td class="py-3.5 px-4 text-right task-actions">
+              <div class="flex items-center justify-end gap-2">
+                {{if eq .Status "DOWNLOADED"}}
+                <a href="/admin/downloads/review/{{.ID}}" class="px-3 py-1.5 bg-yellow-500 hover:bg-yellow-600 text-slate-900 font-bold text-xs rounded-lg transition flex items-center gap-1.5 shadow-sm">
+                  <i class="fa-solid fa-play"></i> Review Subtitle
+                </a>
+                {{else if eq .Status "COMPLETED"}}
+                <a href="{{.HardsubWebURL}}" target="_blank" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg transition flex items-center gap-1.5 shadow-sm">
+                  <i class="fa-solid fa-play"></i> Tonton Hardsub
+                </a>
+                <a href="/admin/downloads/review/{{.ID}}" class="p-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-dark-800 text-slate-600 dark:text-slate-300 rounded-lg text-xs" title="Review Ulang Subtitle">
+                  <i class="fa-solid fa-sliders"></i>
+                </a>
+                {{else if or (eq .Status "PENDING") (eq .Status "DOWNLOADING")}}
+                <button type="button" onclick="cancelTask('{{.ID}}')" class="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition text-xs font-bold" title="Batalkan Unduhan">
+                  <i class="fa-solid fa-xmark"></i> Batal
+                </button>
+                {{else}}
+                <button type="button" onclick="deleteTask('{{.ID}}')" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition text-xs" title="Hapus Riwayat Task">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+                {{end}}
+              </div>
+            </td>
+          </tr>
+          {{else}}
+          <tr>
+            <td colspan="7" class="text-center py-12 text-slate-400">
+              <i class="fa-solid fa-cloud-arrow-down text-3xl mb-2 block opacity-40"></i>
+              Belum ada antrean unduhan torrent. Buka menu <a href="/admin/movies" class="text-brand-500 font-bold underline">Kelola Film</a> dan klik tombol <b>Download Torrent</b> pada link film.
+            </td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- REAL-TIME STATUS POLLING SCRIPT -->
+<script>
+let pollInterval = setInterval(fetchTasksStatus, 1500);
+
+async function fetchTasksStatus() {
+  try {
+    const res = await fetch('/api/admin/downloads/status');
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data.tasks) return;
+
+    data.tasks.forEach(task => {
+      const row = document.getElementById(`task-row-${task.id}`);
+      if (!row) return;
+
+      // Update progress bar & percent
+      const percentEl = row.querySelector('.task-percent');
+      const progressbarEl = row.querySelector('.task-progressbar');
+      const bytesEl = row.querySelector('.task-bytes');
+      const speedEl = row.querySelector('.task-speed');
+      const peersEl = row.querySelector('.task-peers');
+      const statusEl = row.querySelector('.task-status');
+
+      if (percentEl) percentEl.textContent = `${task.progress_percent.toFixed(1)}%`;
+      if (progressbarEl) progressbarEl.style.width = `${task.progress_percent}%`;
+
+      if (bytesEl && task.total_bytes > 0) {
+        const dlMB = (task.downloaded_bytes / 1048576).toFixed(1);
+        const totalGB = (task.total_bytes / 1073741824).toFixed(2);
+        bytesEl.textContent = `${dlMB} MB / ${totalGB} GB`;
+      }
+
+      if (speedEl) {
+        speedEl.textContent = task.status === 'DOWNLOADING' ? `${task.download_speed_mbs.toFixed(2)} MB/s` : '-';
+      }
+      if (peersEl) {
+        peersEl.textContent = task.status === 'DOWNLOADING' ? task.peers_count : '-';
+      }
+
+      // If status changed to DOWNLOADED or COMPLETED, reload row actions
+      if (task.status === 'DOWNLOADED' && !row.querySelector('a[href*="/review/"]')) {
+        location.reload();
+      } else if (task.status === 'COMPLETED' && !row.querySelector('a[href*=".HARDSUB."]') && !row.querySelector('a[target="_blank"]')) {
+        location.reload();
+      }
+    });
+  } catch (err) {
+    console.error('Polling error:', err);
+  }
+}
+
+async function deleteTask(id) {
+  if (!confirm('Hapus riwayat task unduhan ini?')) return;
+  try {
+    const res = await fetch(`/api/admin/downloads/cancel/${id}`, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' }
+    });
+    if (res.ok) {
+      const row = document.getElementById(`task-row-${id}`);
+      if (row) {
+        row.classList.add('transition-all', 'duration-300');
+        row.style.opacity = '0';
+        setTimeout(() => row.remove(), 300);
+      }
+    } else {
+      alert('Gagal menghapus task');
+    }
+  } catch (err) {
+    console.error('Delete error:', err);
+    location.reload();
+  }
+}
+
+async function cancelTask(id) {
+  if (!confirm('Batalkan proses download ini?')) return;
+  try {
+    const res = await fetch(`/api/admin/downloads/cancel/${id}`, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' }
+    });
+    if (res.ok) {
+      location.reload();
+    } else {
+      alert('Gagal membatalkan task');
+    }
+  } catch (err) {
+    console.error('Cancel error:', err);
+    location.reload();
+  }
+}
+</script>
+{{end}}
