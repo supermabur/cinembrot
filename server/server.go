@@ -219,9 +219,11 @@ func (s *Server) loadTemplates() {
 	s.templates["admin_login.html"] = template.Must(template.New("admin_login.html").Funcs(funcMap).ParseFiles(loginPath))
 }
 
-// RenderHTML sets the Content-Type header to text/html and renders the template
+// RenderHTML sets the Content-Type header to text/html and renders the template.
+// Templates are reloaded on every request so HTML edits are visible with just F5 (no restart needed).
 func (s *Server) RenderHTML(w http.ResponseWriter, tmplName, layout string, data interface{}) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	s.loadTemplates() // Auto-reload: baca ulang file HTML dari disk setiap request
 	if tmpl, ok := s.templates[tmplName]; ok {
 		var err error
 		if layout != "" {

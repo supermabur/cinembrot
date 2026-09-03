@@ -9,11 +9,11 @@
 
     <div class="flex-1">
       <div class="flex flex-wrap items-center gap-2 mb-2">
-        {{if .Movie.IsFree}}
+        <!-- {{if .Movie.IsFree}}
         <span class="bg-green-600 text-white text-xs font-bold px-2.5 py-1 rounded shadow">100% GRATIS & LEGAL</span>
         {{else}}
         <span class="bg-blue-600 text-white text-xs font-bold px-2.5 py-1 rounded shadow">BERLISENSI KOMERSIL</span>
-        {{end}}
+        {{end}} -->
         <span class="bg-slate-100 dark:bg-dark-800 text-slate-700 dark:text-slate-300 text-xs px-2.5 py-1 rounded border border-slate-200 dark:border-dark-700">{{.Movie.Quality}}</span>
         <span class="text-yellow-500 dark:text-yellow-400 font-bold text-sm"><i class="fa-solid fa-star"></i> {{.Movie.Rating}}/10</span>
         {{if .Movie.TrailerURL}}
@@ -31,7 +31,7 @@
         <div><span class="text-slate-400 dark:text-slate-500 font-semibold">Usia:</span> {{.Movie.AgeRating}}</div>
         <div><span class="text-slate-400 dark:text-slate-500 font-semibold">Negara:</span> {{.Movie.Country}}</div>
         <div><span class="text-slate-400 dark:text-slate-500 font-semibold">Bahasa:</span> {{.Movie.Language}}</div>
-        <div><span class="text-slate-400 dark:text-slate-500 font-semibold">Lisensi:</span> {{.Movie.LicenseType}}</div>
+        <!-- <div><span class="text-slate-400 dark:text-slate-500 font-semibold">Lisensi:</span> {{.Movie.LicenseType}}</div> -->
         <div><span class="text-slate-400 dark:text-slate-500 font-semibold">Views:</span> {{.Movie.Views}} kali</div>
       </div>
 
