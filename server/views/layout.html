@@ -17,6 +17,10 @@
     })();
   </script>
 
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -28,7 +32,7 @@
         extend: {
           colors: {
             brand: { 500: '#E50914', 600: '#B81D24', 700: '#991218' },
-            dark: { 950: '#0B0F17', 900: '#0F172A', 800: '#1E293B', 700: '#334155' }
+            dark: { 800: '#1E293B', 900: '#0F172A', 950: '#020617' }
           }
         }
       }
@@ -46,8 +50,9 @@
   <nav class="sticky top-0 z-50 bg-white/95 dark:bg-dark-900/95 backdrop-blur border-b border-slate-200 dark:border-dark-800 px-4 lg:px-8 py-3 transition-colors duration-200 shadow-sm dark:shadow-none">
     <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
       <div class="flex items-center gap-6">
-        <a href="/" class="text-2xl font-black tracking-wider text-brand-500 flex items-center gap-2">
-          <i class="fa-solid fa-film"></i> CINEMBROT
+        <a href="/" class="text-2xl font-black tracking-wider text-brand-500 flex items-center gap-3">
+          <img src="/favicon.png" alt="CINEMBROT Logo" class="h-11 w-auto object-contain drop-shadow hover:scale-105 transition-transform duration-150">
+          <span>CINEMBROT</span>
         </a>
         <div class="hidden md:flex items-center gap-5 text-sm font-semibold">
           <a href="/" class="hover:text-brand-500 transition {{if eq .ActiveMenu "home"}}text-brand-500{{else}}text-slate-600 dark:text-slate-300{{end}}">Home</a>
@@ -101,14 +106,23 @@
   </main>
 
   <!-- FOOTER -->
-  <footer class="bg-white dark:bg-dark-900 border-t border-slate-200 dark:border-dark-800 py-8 px-4 text-center text-sm text-slate-500 dark:text-slate-400 transition-colors duration-200">
-    <div class="max-w-7xl mx-auto">
-      <p class="font-bold text-slate-700 dark:text-slate-200 mb-1">CINEMBROT Movie Engine & Streamer</p>
-      <p class="text-xs mb-4">Didukung oleh Internet Archive, Blender Open Movies, dan TMDb REST API.</p>
-      <div class="flex justify-center gap-4 text-xs font-medium">
-        <a href="/" class="hover:text-brand-500">Home</a>
-        <a href="/free" class="hover:text-green-500">Film Legal Gratis</a>
-        <a href="/api/movies" class="hover:text-brand-500" target="_blank">JSON API</a>
+  <footer class="bg-white dark:bg-dark-900 border-t border-slate-200 dark:border-dark-800 py-12 px-4 text-center text-sm text-slate-500 dark:text-slate-400 transition-colors duration-200">
+    <div class="max-w-7xl mx-auto flex flex-col items-center">
+      <!-- BIG MASCOT LOGO & BRANDING -->
+      <a href="/" class="inline-flex flex-col items-center group mb-4">
+        <img src="/favicon.png" alt="CINEMBROT Mascot Logo" class="h-24 w-auto object-contain drop-shadow-lg group-hover:scale-110 transition-transform duration-200 mb-3">
+        <span class="text-2xl font-black tracking-widest text-brand-500">CINEMBROT</span>
+      </a>
+      <p class="font-semibold text-slate-700 dark:text-slate-200 text-sm mb-1">Platform Streaming & Download Film Gratis Legal</p>
+      <p class="text-xs mb-5 max-w-md text-slate-400">Didukung oleh Internet Archive, Blender Open Movies, dan TMDb REST API dengan integrasi subtitle otomatis.</p>
+      <div class="flex flex-wrap justify-center gap-6 text-xs font-semibold">
+        <a href="/" class="hover:text-brand-500 transition">Home</a>
+        <a href="/free" class="hover:text-green-500 transition">Film Legal Gratis</a>
+        <a href="/filter" class="hover:text-brand-500 transition">Katalog Lengkap</a>
+        <a href="/api/movies" class="hover:text-brand-500 transition" target="_blank">JSON API</a>
+      </div>
+      <div class="mt-8 pt-6 border-t border-slate-100 dark:border-dark-800 text-[11px] text-slate-400 w-full max-w-md">
+        &copy; 2026 CINEMBROT. All rights reserved.
       </div>
     </div>
   </footer>

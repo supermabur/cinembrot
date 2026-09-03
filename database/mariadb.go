@@ -197,6 +197,7 @@ func seedDefaultSettings(db *gorm.DB) {
 		{Key: "auto_scrape_pages_per_year", Value: "1", Description: "Jumlah halaman yang discraping per tahun (1 halaman = 20 film)"},
 		{Key: "auto_scrape_delay_ms", Value: "500", Description: "Jeda waktu ramah server antar permintaan film (ms)"},
 		{Key: "download_movie_path", Value: "public/download/movie", Description: "Direktori penyimpanan file unduhan film dan hardsub subtitle"},
+		{Key: "show_torrent_public", Value: "false", Description: "Tampilkan link torrent mentah di halaman publik film (true/false)"},
 	}
 
 	for _, s := range defaults {
@@ -222,6 +223,16 @@ func GetDownloadMoviePath(db *gorm.DB) string {
 	}
 	_ = os.MkdirAll(val, 0755)
 	return val
+}
+
+// GetShowTorrentPublic returns whether raw torrent download links should be shown on public movie detail pages (default: false)
+func GetShowTorrentPublic(db *gorm.DB) bool {
+	var s model.SystemSetting
+	if err := db.Where("`key` = ?", "show_torrent_public").First(&s).Error; err == nil {
+		val := strings.ToLower(strings.TrimSpace(s.Value))
+		return val == "true" || val == "1" || val == "on"
+	}
+	return false
 }
 
 // SanitizeExistingSynopses cleans up any existing synopses in the database that still contain HTML tags

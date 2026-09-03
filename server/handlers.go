@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"cinembrot/database"
 	"cinembrot/model"
 	"cinembrot/scraper"
 	"gorm.io/gorm"
@@ -36,6 +37,7 @@ type PageData struct {
 	TotalCount      int64
 	EnableAds       bool
 	EnableComments  bool
+	ShowTorrentPublic bool
 	CaptchaQuestion string
 	CaptchaToken    string
 }
@@ -268,10 +270,11 @@ func (s *Server) HandleMovieDetail(w http.ResponseWriter, r *http.Request) {
 		Movie:           &movie,
 		Related:         related,
 		Genres:          genres,
-		EnableAds:       s.cfg.EnableAds,
-		EnableComments:  s.cfg.EnableComments,
-		CaptchaQuestion: captcha.Question,
-		CaptchaToken:    captcha.Token,
+		EnableAds:         s.cfg.EnableAds,
+		EnableComments:    s.cfg.EnableComments,
+		ShowTorrentPublic: database.GetShowTorrentPublic(s.db),
+		CaptchaQuestion:   captcha.Question,
+		CaptchaToken:      captcha.Token,
 	}
 
 	s.RenderHTML(w, "detail.html", "layout.html", data)

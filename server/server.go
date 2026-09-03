@@ -55,6 +55,26 @@ func (s *Server) loadTemplates() {
 		"cleanText": func(str string) string {
 			return scraper.CleanHTMLToPlainText(str)
 		},
+		"cleanQuality": func(q string) string {
+			for _, pat := range []string{"(Hardsub Indo)", "(Hardsub Indonesia)", "(hardsub indo)", "(hardsub indonesia)", "Hardsub Indo", "Hardsub"} {
+				q = strings.ReplaceAll(q, pat, "")
+			}
+			q = strings.TrimSpace(q)
+			if q == "" {
+				return "720p HD"
+			}
+			return q
+		},
+		"cleanProvider": func(p string) string {
+			for _, pat := range []string{"(Hardsub Indonesia)", "(Hardsub Indo)", "(hardsub indonesia)", "(hardsub indo)"} {
+				p = strings.ReplaceAll(p, pat, "")
+			}
+			p = strings.TrimSpace(p)
+			if p == "" {
+				return "Server Lokal"
+			}
+			return p
+		},
 		"paragraphs": func(str string) []string {
 			clean := scraper.CleanHTMLToPlainText(str)
 			if clean == "" {
@@ -290,6 +310,18 @@ func (s *Server) Start() error {
 	_ = os.MkdirAll(downloadsDir, 0755)
 	mux.Handle("GET /downloads/", http.StripPrefix("/downloads/", http.FileServer(http.Dir(downloadsDir))))
 	mux.Handle("GET /public/download/movie/", http.StripPrefix("/public/download/movie/", http.FileServer(http.Dir(downloadsDir))))
+
+	// Static Brand Assets (Favicon & Mascot Logos)
+	mux.HandleFunc("GET /favicon.ico", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, filepath.Join("public", "favicon.png"))
+	})
+	mux.HandleFunc("GET /favicon.png", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, filepath.Join("public", "favicon.png"))
+	})
+	mux.HandleFunc("GET /logo.png", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, filepath.Join("public", "img", "logo.png"))
+	})
+	mux.Handle("GET /img/", http.StripPrefix("/img/", http.FileServer(http.Dir(filepath.Join("public", "img")))))
 
 	port := s.cfg.ServerPort
 	if port == "" {

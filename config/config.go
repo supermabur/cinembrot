@@ -85,7 +85,7 @@ func LoadConfig() *Config {
 		OMDBAPIKey:   getEnv("OMDB_API_KEY", "4b447405"),
 
 		AdminDefaultUser:  getEnv("ADMIN_USER", "admin"),
-		AdminDefaultPass:  getEnv("ADMIN_PASS", "CINEMBROT123"),
+		AdminDefaultPass:  getEnv("ADMIN_PASS", "cinembrot123"),
 
 		EnableComments:    getEnvAsBool("ENABLE_COMMENTS", true),
 		EnableAds:         getEnvAsBool("ENABLE_ADS", true),

@@ -534,16 +534,16 @@ func (m *Manager) RegisterHardsubDownloadLink(task *model.TorrentTask) {
 		}
 	}
 
-	qualityName := "720p HD (Hardsub Indo)"
+	qualityName := "720p HD"
 	if task.Quality != "" {
-		qualityName = fmt.Sprintf("%s (Hardsub Indo)", strings.TrimSpace(task.Quality))
+		qualityName = strings.TrimSpace(task.Quality)
 	}
 
 	var existing model.DownloadLink
 	if err := m.db.Where("movie_id = ? AND url = ?", task.MovieID, task.HardsubWebURL).First(&existing).Error; err != nil {
 		newDL := model.DownloadLink{
 			MovieID:    task.MovieID,
-			Provider:   "Server Lokal (Hardsub Indonesia)",
+			Provider:   "Server Lokal",
 			Quality:    qualityName,
 			Resolution: "1280x720",
 			Format:     "MP4",

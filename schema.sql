@@ -1,6 +1,6 @@
 -- ============================================================================
 -- CINEMBROT DATABASE SCHEMA & SEED DATA
--- Generated At: 2026-09-01 17:02:26
+-- Generated At: 2026-09-03 11:23:08
 -- Database Engine: MariaDB / MySQL (InnoDB, utf8mb4)
 --
 -- CATATAN:
@@ -8,6 +8,7 @@
 -- 2. Seluruh tabel hanya menyertakan struktur tabel, KECUALI:
 --    - system_settings (Struktur + Data konfigurasi sistem & scraper)
 --    - users (Struktur + Data akun administrator awal)
+--    - scrape_sources (Struktur + Data konfigurasi sumber API & website scraper)
 -- ============================================================================
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -27,7 +28,7 @@
 /*M!999999\- enable the sandbox mode */ 
 -- MariaDB dump 10.19-11.8.8-MariaDB, for Win64 (AMD64)
 --
--- Host: localhost    Database: CINEMBROT
+-- Host: localhost    Database: cinembrot
 -- ------------------------------------------------------
 -- Server version	11.8.8-MariaDB
 
@@ -62,7 +63,7 @@ CREATE TABLE IF NOT EXISTS `actors` (
   KEY `idx_actors_name` (`name`),
   KEY `idx_actors_slug` (`slug`),
   KEY `idx_actors_deleted_at` (`deleted_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=4519 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4523 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -147,7 +148,7 @@ CREATE TABLE IF NOT EXISTS `download_links` (
   KEY `idx_download_links_status` (`status`),
   CONSTRAINT `fk_episodes_download_links` FOREIGN KEY (`episode_id`) REFERENCES `episodes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_movies_download_links` FOREIGN KEY (`movie_id`) REFERENCES `movies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=53389 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=53380 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -367,7 +368,7 @@ CREATE TABLE IF NOT EXISTS `scrape_logs` (
   KEY `idx_scrape_logs_source_website` (`source_website`),
   KEY `idx_scrape_logs_status` (`status`),
   KEY `idx_scrape_logs_deleted_at` (`deleted_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=760 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=904 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -510,7 +511,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping routines for database 'CINEMBROT'
+-- Dumping routines for database 'cinembrot'
 --
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -522,15 +523,15 @@ CREATE TABLE IF NOT EXISTS `users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-09-01 17:02:26
+-- Dump completed on 2026-09-03 11:23:08
 
 -- ----------------------------------------------------------------------------
--- DATA SEED (HANYA UNTUK: system_settings & users)
+-- DATA SEED (UNTUK: system_settings, users, & scrape_sources)
 -- ----------------------------------------------------------------------------
 /*M!999999\- enable the sandbox mode */ 
 -- MariaDB dump 10.19-11.8.8-MariaDB, for Win64 (AMD64)
 --
--- Host: localhost    Database: CINEMBROT
+-- Host: localhost    Database: cinembrot
 -- ------------------------------------------------------
 -- Server version	11.8.8-MariaDB
 
@@ -553,7 +554,7 @@ SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 REPLACE INTO `users` VALUES
-(1,'admin','$s256$a4e6589397d9f4ac2c47c706a0e0f5c9$3ae42e21e7d71e52b8b4af021d6bbf5629e545bc0415199cdb0552c62aacf6e2','Administrator','admin',1,'2026-09-01 16:24:36.160','2026-08-31 09:35:45.802','2026-09-01 16:24:36.160',NULL),
+(1,'admin','$s256$dff2fcd46694841f74fef4f51f477e24$3db8c355b1b73fd50f5026badc9dc366323fd342752fa86d0fbc0175408d4246','Administrator','admin',1,'2026-09-03 11:20:52.847','2026-08-31 09:35:45.802','2026-09-03 11:20:52.847',NULL),
 (2,'budi_editor','$s256$e3a1f83e86a8bab76adf94f901dad2c6$81fe5cffc7684d93a6c4c1c589afc44e4142e726c0289281b810b41fad95f8c1','Budi Pratama','editor',1,'2026-08-31 09:46:06.983','2026-08-31 09:36:04.143','2026-08-31 09:46:06.983',NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -568,14 +569,34 @@ SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `system_settings` WRITE;
 /*!40000 ALTER TABLE `system_settings` DISABLE KEYS */;
 REPLACE INTO `system_settings` VALUES
-('auto_scrape_delay_ms','500','Jeda waktu ramah server antar permintaan film (ms)','2026-08-31 14:18:48.238'),
-('auto_scrape_enabled','true','Saklar ON/OFF Auto-Scraper Latar Belakang','2026-08-31 14:18:48.234'),
-('auto_scrape_end_year','2015','Tahun akhir penelusuran katalog film','2026-08-31 14:18:48.237'),
-('auto_scrape_interval_minutes','360','Interval waktu scraping otomatis (menit)','2026-08-31 14:18:48.235'),
-('auto_scrape_pages_per_year','5','Jumlah halaman yang discraping per tahun (1 halaman = 20 film)','2026-08-31 14:18:48.237'),
-('auto_scrape_start_year','2026','Tahun awal penelusuran katalog film','2026-08-31 14:18:48.236'),
-('download_movie_path','public/download/movie','Direktori penyimpanan file unduhan film dan hardsub subtitle','2026-09-01 16:22:25.000');
+('auto_scrape_delay_ms','500','Jeda waktu ramah server antar permintaan film (ms)','2026-09-03 11:15:58.197'),
+('auto_scrape_enabled','true','Saklar ON/OFF Auto-Scraper Latar Belakang','2026-09-03 11:15:58.192'),
+('auto_scrape_end_year','2015','Tahun akhir penelusuran katalog film','2026-09-03 11:15:58.195'),
+('auto_scrape_interval_minutes','30','Interval waktu scraping otomatis (menit)','2026-09-03 11:15:58.193'),
+('auto_scrape_pages_per_year','1','Jumlah halaman yang discraping per tahun (1 halaman = 20 film)','2026-09-03 11:15:58.196'),
+('auto_scrape_start_year','2026','Tahun awal penelusuran katalog film','2026-09-03 11:15:58.194'),
+('download_movie_path','public/download/movie','Direktori penyimpanan file unduhan film dan hardsub subtitle','2026-09-03 11:15:58.190'),
+('show_torrent_public','false','Tampilkan link torrent mentah di halaman publik film (true/false)','2026-09-03 11:15:58.191');
 /*!40000 ALTER TABLE `system_settings` ENABLE KEYS */;
+UNLOCK TABLES;
+COMMIT;
+SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
+
+--
+-- Dumping data for table `scrape_sources`
+--
+
+SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
+LOCK TABLES `scrape_sources` WRITE;
+/*!40000 ALTER TABLE `scrape_sources` DISABLE KEYS */;
+REPLACE INTO `scrape_sources` VALUES
+(1,'The Movie Database (TMDb)','tmdb','https://api.themoviedb.org/3','','api','Metadata & Popular','Penyedia katalog metadata film, rating, sinopsis, poster resolusi tinggi, sutradara, dan cast aktor.',0,5,0,NULL,'2026-08-31 10:29:51.732','2026-08-31 10:55:01.527',NULL),
+(2,'Internet Archive (Feature Films)','archive','https://archive.org/details/feature_films','','api','Public Domain & Legal Downloads','Arsip publik film bioskop klasik, public domain, dan open license dengan link download video langsung.',0,3,0,NULL,'2026-08-31 10:29:51.733','2026-08-31 10:55:02.101',NULL),
+(3,'Blender Open Studio','blender','https://studio.blender.org/films/','','html_scrape','Creative Commons Open Movies','Film animasi open source berkualitas 4K Creative Commons (Sintel, Tears of Steel, Big Buck Bunny, Spring, Charge).',0,2,0,NULL,'2026-08-31 10:29:51.734','2026-08-31 10:55:05.033',NULL),
+(4,'Public Domain Movies Hub','publicdomain','https://publicdomainmovies.info/','','html_scrape','Public Domain Catalog','Direktori kurasi film-film berlisensi domain publik bebas hak cipta komersial.',0,2,0,NULL,'2026-08-31 10:29:51.736','2026-08-31 10:55:25.462',NULL),
+(5,'Filmapik College','filmapik','https://filmapik.college','','html_scrape','Third-Party Streaming','',1,2,0,NULL,'2026-08-31 10:29:52.509','2026-08-31 10:29:52.509','2026-08-31 10:42:37.644'),
+(6,'YTS Movies (YIFY Torrents)','yts','https://yts.lt/api/v2','','api','Torrent & Commercial Releases','Penyedia REST API resmi film dengan link download file torrent dan magnet link resolusi 720p, 1080p, dan 4K.',1,3,0,NULL,'2026-08-31 10:51:18.676','2026-08-31 11:15:38.939',NULL);
+/*!40000 ALTER TABLE `scrape_sources` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
 SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
@@ -588,7 +609,7 @@ SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-09-01 17:02:26
+-- Dump completed on 2026-09-03 11:23:08
 
 
 -- ============================================================================
